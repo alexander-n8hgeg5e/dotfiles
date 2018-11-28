@@ -1,0 +1,20 @@
+XTerm*FaceName: Knack Nerd Font:size=10
+XTerm*faceSize: 9
+XTerm*OmitTranslation: fullscreen,scroll-lock,shift-fonts,wheel-mouse,default
+XTerm*Utf8Fonts: always
+Xterm*Utf8: 2
+XTerm*AltSendsEscape: true
+XTerm*MetaSendsEscape: true
+XTerm*EightBitInput: false
+XTerm*DynamicColors: true
+XTerm*alwaysHighlight: true
+*VT100.colorBDMode:     true
+*VT100.colorBD:         red
+*VT100.colorULMode:     true
+*VT100.colorUL:         cyan
+
+XTerm*CursorColor: #FF00FF
+Xterm*Background:               white
+Xterm*Foreground:               black
+
+Xft.dpi: 93.554

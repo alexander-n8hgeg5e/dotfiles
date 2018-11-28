@@ -1,0 +1,5 @@
+text/html; w3m -I %{charset} -T text/html;copiousoutput;
+text/plain; w3m -I %{charset} -T text/plain;copiousoutput;
+image/jpeg; display;
+application/pdf; okular -;
+audio/*; vlc %s

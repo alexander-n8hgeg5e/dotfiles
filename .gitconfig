@@ -1,0 +1,35 @@
+[user]
+	email = alexander.w.email@gmail.com
+	name = alexander-n8hgeg5e
+[core]
+	editor = 'git_commit_nvim'
+	compression = 0
+	looseCompression = 0
+	quotepath = off
+[gui]
+	fontui = -family \"DejaVu Sans\" -size 8 -weight normal -slant roman -underline 0 -overstrike 0
+	fontdiff = -family \"DejaVu Sans Mono\" -size 8 -weight normal -slant roman -underline 0 -overstrike 0
+[http]
+	cookiefile = /home/esadman/.gitcookies
+[push]
+	default = nothing
+	recurseSubmodules = on-demand
+[status]
+	submodulesummary = true
+	short = false
+[diff]
+	submodule = log
+	colorMoved = dimmed_zebra
+	algorithm = histogram
+	indentHeuristic = true
+
+[commit]
+	status = true
+	verbose = 0
+[receive]
+	denyCurrentBranch = updateInstead
+[advice]
+	statushints = false
+	pushUpdateRejected = false
+[merge]
+	stat = true
