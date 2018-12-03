@@ -23,12 +23,12 @@ source ~/PIM/mail_aliases
 source ~/.mutt/pgp_settings
 
 #####  some settings  ##############
-set  alias_file=~/PIM/mail_aliases
+set  alias_file="~/PIM/mail_aliases"
 set  editor="e -w"
 unset wait_key
 set timeout=300
 set mail_check=5
-set mailcap_path = ~/.mutt/mailcap
+set mailcap_path = "~/.mutt/mailcap"
 bind attach <return>    view-mailcap
 auto_view text/html                                      # view html automatically
 alternative_order text/plain text/enriched text/html     # save html for last

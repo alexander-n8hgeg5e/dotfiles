@@ -33,3 +33,11 @@
 	pushUpdateRejected = false
 [merge]
 	stat = true
+[grep]
+	threads = 16
+[pack]
+	threads = 16
+	compression = 9
+	deltaCacheSize = 4000
+	windowMemory = 500m
+	deltaCacheLimit = 6000
