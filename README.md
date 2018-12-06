@@ -89,7 +89,7 @@ I suggest to install it anyway.
   
     * no problems and no deseases from typing to much
   
-      * wheter you use vim or emacs or 
+      * whether you use vim or emacs or 
         useing ctrl-whatever thousand times,
         -> nearly no fatigue of anything
   
