@@ -1,5 +1,5 @@
 # dotfiles
-This is what you have dreamed of since ever.
+This is what you have dreamed of ever since.
 
         ### Warning ###
         No warranty for anything.
