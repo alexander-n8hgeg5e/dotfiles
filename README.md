@@ -17,9 +17,11 @@
 
        * either: read the ebuild and build like that.
 
-           * see in this file for source url and for what commit to checkout:  [neovim ebuild](https://github.com/alexander-n8hgeg5e/my-portage-repo/app-editors/neovim/neovim-0.3.1.ebuild)
+           * see in this file for source url and for what commit to checkout:  [my neovim ebuild](https://github.com/alexander-n8hgeg5e/my-portage-repo/app-editors/neovim/neovim-0.3.1.ebuild)
 
            * configure with python enabled, some other stuff enabled
+
+	   * don't forget to patch manually
 
        * or:
            * make new user with new home dir
