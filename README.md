@@ -56,11 +56,12 @@
 
  * shortcuts: [shortcuts](https://github.com/alexander-n8hgeg5e/shortcuts)
 
-                ### Attention ###
+                ### Attention
                 My shortcuts install many really short commands to the chroot or whereever you install it.
                 So be prepared not to hit enter. It could do something.
                 The most dangerous commands, i guess, are "sd" shuts down and l locks the screen or "s" suspend.
                 So don't be afraid, but no warranty if anything happens you don't want.
+                ###
 
            * emerge shortcuts: "emerge shortcuts"
 
@@ -70,22 +71,22 @@
 
  * Dep: best to run this with a special keyboard layout. I use a lets-split keyboard by wootpatoot that i customized for my needs.
 
-        * The layout is similar to the keymap in my nlthr repo and is derived from it.
+       * The layout is similar to the keymap in my nlthr repo and is derived from it.
 
-        * key features of the layout:
+       * key features of the layout
 
-                                     * easy to learn
+                * easy to learn
 
-                                     * never need your hands while typing.
+                * never need your hands while typing.
 
-                                         * maximum movement is a bit rotation, but seldom needed
+                * maximum movement is a bit rotation, but seldom needed
 
-                                         * usally only finge movement.
+                * usally only finge movement.
 
-                                         * no problems and no deseases from typing to much
+                * no problems and no deseases from typing to much
 
-                                            * wheter you use vim or emacs or 
-                                              useing ctrl-whatever thousand times,
-                                                -> nearly no fatigue of anything
+                * wheter you use vim or emacs or 
+                  useing ctrl-whatever thousand times,
+                  -> nearly no fatigue of anything
 
         * wait some time , if i have spare time i will load it up to github 
