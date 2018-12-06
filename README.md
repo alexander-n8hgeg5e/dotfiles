@@ -34,16 +34,16 @@ I suggest to install it anyway.
       * extract a gentoo stage3 tarball there
   
       * chroot into this dir as described in for example for amd64 architectur:
-             [Gentoo Chroot] https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Chrooting
+        [Gentoo Chroot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Chrooting)
   
       * missing parts of information that i missed here are in the Gentoo Handbook:
-             [Gentoo Handbook](https://wiki.gentoo.org/wiki/Handbook:Main_Page)
+        [Gentoo Handbook](https://wiki.gentoo.org/wiki/Handbook:Main_Page)
   
       * I'ts not that hard as it seem in the first place.
         You can get away with tar ball extracting , a bit mounting, then chroot
         and you are nearly ready to compile gentoo stuff.
   
-      * clone my repo [repo] (https://github.com/alexander-n8hgeg5e/my-portage-repo)
+      * clone my repo: [repo](https://github.com/alexander-n8hgeg5e/my-portage-repo)
         to chroots envs: "/usr/local/portage" not "/usr/local/portage/my-portage-repo"
   
       * add it to gentoo:
