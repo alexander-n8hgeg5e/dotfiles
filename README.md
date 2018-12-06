@@ -3,7 +3,7 @@
 
 	### Warning ###
 	No waranty for anything.
-	This is manual and the software is probably incomplete and full of bugs additionally contains some crapy stuff.
+	This manual and the software is probably incomplete and full of bugs additionally contains some crapy stuff.
 	If not mentioned or not conflicting with copyrights or rights of others my licence is gpl-v3.
 
   I suggest to install it anyway.
