@@ -49,9 +49,11 @@ I suggest to install it anyway.
       * add it to gentoo:
         maybe it's enough to add these 3 lines to 
         "/etc/portage/repos.conf/localrepo.conf"
-          [my]
-          location = /usr/local/portage
-          priority = 1000
+        ```
+        [my]
+        location = /usr/local/portage
+        priority = 1000
+        ```
   
       * emerge neovim with emerge =app-editors/neovim-0.3.1::my
   
