@@ -81,16 +81,16 @@ I suggest to install it anyway.
 
     * easy to learn
   
-    * never need your hands while typing.
+    * never need to move your hands while typing.
   
-    * maximum movement is a bit rotation, but seldom needed
+      * maximum movement is a bit rotation, but seldom needed
   
-    * usally only finge movement.
+      * usally only finge movement.
   
     * no problems and no deseases from typing to much
   
-    * wheter you use vim or emacs or 
-      useing ctrl-whatever thousand times,
-      -> nearly no fatigue of anything
+      * wheter you use vim or emacs or 
+        useing ctrl-whatever thousand times,
+        -> nearly no fatigue of anything
   
   * wait some time , if i have spare time i will load it up to github 
