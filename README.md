@@ -10,7 +10,7 @@ I suggest to install it anyway.
 
 ## dependencies:
 
-* My vim config needs neovim version 0.3.1 + patches onto it
+* My vim config needs neovim version 0.3.1 + my patches onto it
 
   * patches:  [my-portage-repo](https://github.com/alexander-n8hgeg5e/my-portage-repo/app-editors/neovim/files/)
  
