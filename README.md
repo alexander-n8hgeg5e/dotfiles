@@ -43,14 +43,15 @@ I suggest to install it anyway.
         You can get away with tar ball extracting , a bit mounting, then chroot
         and you are nearly ready to compile gentoo stuff.
   
-      * clone my repo [repo] (https://github.com/alexander-n8hgeg5e/my-portage-repo) to chroot envs "/usr/local/portage" not "/usr/local/portage/my-portage-repo"
+      * clone my repo [repo] (https://github.com/alexander-n8hgeg5e/my-portage-repo)
+        to chroots envs: "/usr/local/portage" not "/usr/local/portage/my-portage-repo"
   
       * add it to gentoo:
         maybe it's enough to add these 3 lines to 
         "/etc/portage/repos.conf/localrepo.conf"
-            [my]
-            location = /usr/local/portage
-            priority = 1000
+          [my]
+          location = /usr/local/portage
+          priority = 1000
   
       * emerge neovim with emerge =app-editors/neovim-0.3.1::my
   
