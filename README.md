@@ -9,7 +9,7 @@ This is what you have dreamed of ever since.
 I suggest to install it anyway.
 
 ## Description:
-My dotfiles are a user interface based on **vim** , **vim's terminal emu** ,
+My dotfiles are a user interface based on **neovim** , **neovim's terminal emu** ,
 **Tmux** and some useful scripts, called shortcuts.
 They make use of vims **python interface** to , for instance
 load a file to edit into vim.
@@ -34,7 +34,7 @@ switches color and indicates the mode.
 Only the  active window is with cursorcolumn,line enabled.
 This  was not possible without small modification of the vim code.
 
-**Many more features!
+**Many more features!**
 
 
 ## dependencies:
