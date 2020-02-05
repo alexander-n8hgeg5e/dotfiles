@@ -1,0 +1,67 @@
+#!/bin/fish
+
+# set -x DISPLAY esadc:0
+# echo $DISPLAY
+#set cmdline_esadc "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :1 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
+
+#set cmdline_skyscraper "nice -n-20 ionice -c1 -n3 chrt -rr 30 X :1 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
+
+set hostname (hostname)
+
+function clean
+    ssh de killall redshift
+    ssh de killall conky
+    ssh de killall clipster
+    ssh de killall st
+    ssh de killall spectrwm
+    wm_conf_adj
+end
+
+#function xserver_wait_prog
+#    st -t waitprog -e fish -C "function fish_title
+#	end
+#	echo This is xserver waiting shell. Exiting this shell will terminate xserver."
+#end
+
+#function xserver_start
+#    for i in esadc skyscraper
+#        set varname cmdline_$i
+#        if test $hostname = $i
+#            echo
+#            echo starting xserver on $i ...
+#            echo
+#            eval $$varname &
+#            echo starting spice viewer ..
+#            set -x DISPLAY :1
+#            eval spicy -h 127.0.0.1 -p 4300 -f &
+#        else
+#            echo
+#            echo starting xserver via ssh on $i ...
+#            echo
+#            ssh $i'_xserver' $$varname &
+#            echo starting spice viewer ..
+#            set -x DISPLAY :1
+#            ssh $i'_xserver'  'spicy -h esadc -p 4300 -f' & 
+#            set -x DISPLAY :1
+#            echo done $i
+#        end
+#    end
+#end
+#
+if test $argv[1] = c   #clean
+    clean
+end
+
+env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 setup_x $hostname 
+
+#xserver_start &
+pulseaudio -D &
+#synergy_tmrl_esadc_client &
+setup_xrandr
+#redshift -c ~/.redshift_esadc.conf &
+env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 clipster -d &
+screen_on_control &
+env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 st -e TM &
+env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 sc -r &
+spectrwm
+#i3 -c "$HOME""/.config/i3/config_esadc:0"

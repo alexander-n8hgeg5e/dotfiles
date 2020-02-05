@@ -1,0 +1,72 @@
+#!/bin/bash
+#### case combining functions with stuff in needed all cases combined with "-" ####
+setup_login-pc(){
+    is_interactive&&echo -n .
+    # correct home path
+    export HOME=$( realpath ${HOME} )
+    is_interactive&&echo -n .
+    export EPREFIX="${HOME}/gentoo"
+    is_interactive&&echo -n .
+}
+
+setup_interactive-pc(){
+    echo -n .
+    [[ -v $monitor_width ]]\
+    || export monitor_width='1920:1920'\
+    && echo -n $monitor_width
+    echo -n .
+    #fishpath=$(whereis fish|cut -d: -f2)
+    #[[ -n $fishpath ]] && [[ -e $fishpath ]] && fish ~/.config/fish/conf.d/50-prefix-fix.fish
+}
+
+####   base functions with stuff needed for the case as base ####
+setup_pc(){
+    echo -n
+    export LC_CTYPE="en_US.UTF-8"
+    export LANG="en_US.UTF-8"
+    export l="${HOME}/lithium_flow.input"
+    export LANGUAGE="en_US.UTF-8:en_US:en"
+    export disable_nvim_git_history=1
+    source ~/.prefix_vars
+    umask 0077
+}
+
+### functions that contain all stuff needed for the case ###
+setup_login_pc(){
+    is_interactive&&echo -n .
+    is_interactive&&echo -n .
+    setup_base
+    is_interactive&&echo -n .
+    setup_pc
+    is_interactive&&echo -n .
+    setup_login
+    is_interactive&&echo -n .
+    setup_login-pc
+    is_interactive&&echo -n .
+}
+setup_interactive_pc(){
+    echo -n .
+    setup_base
+    echo -n .
+    setup_pc
+    echo -n .
+    setup_interactive
+    echo -n .
+    setup_interactive-pc
+    echo -n .
+}
+setup_login_interactive_pc(){
+    echo -n .
+    setup_base
+    echo -n .
+    setup_login
+    echo -n .
+    setup_interactive
+    echo -n .
+    setup_pc
+    echo -n .
+    setup_login-pc
+    echo -n .
+    setup_interactive-pc
+    echo -n .
+}

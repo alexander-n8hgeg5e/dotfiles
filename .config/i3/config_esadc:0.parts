@@ -1,0 +1,3 @@
+config.base
+config.part.esadc:0
+config.part.feedkey_client

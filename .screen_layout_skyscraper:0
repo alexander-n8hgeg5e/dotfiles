@@ -1,0 +1,23 @@
+:--dpi 90
+:--output HDMI-1
+--rotate left
+--pos 0x0
+--primary
+
+:--output VGA-1 
+--mode 1920x1080
+
+:--delmode VGA-1 1920x1080_
+
+:--rmmode 1920x1080_
+
+:--newmode 1920x1080_ 148.500 1920 2007 2052 2204 1080 1084 1089 1125 +hsync +vsync
+
+:--newmode 1920x1080_ 148.86399999999999010924 1920 2007 2052 2204 1080 1084 1089 1125 +hsync +vsync
+
+:--addmode VGA-1 1920x1080_
+
+:--output VGA-1
+--mode 1920x1080_
+--rotate left
+--pos 768x0

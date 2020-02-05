@@ -1,0 +1,76 @@
+#!/bin/fish
+set -x DISPLAY :2
+
+set cmdline0 "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :0 -ardelay 130 -arinterval 50 -listen inet -iglx w-render -depth 24 vt7"
+set cmdline2 "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo Xdmx :2 -display skyscraper:0 -display :0 -input local -norender -noglxproxy -xinerama"
+
+#set firewall_0 "sudo rc-service iptables start"
+#set firewall_1 "sudo rc-service ip6tables start"
+#set firewall_check_0 "/usr/bin/sudo rc-service iptables status"
+#set firewall_check_1 "/usr/bin/sudo rc-service ip6tables status"
+#
+#function waitforX -a cmdline -a display
+#   echo $cmdline
+#   eval $cmdline&
+#   set maxwait 25
+#   set counter 0
+#   while true
+#       sleep 1
+#       set counter ( math $counter + 1 )
+#       xprop -root ^ /dev/null > /dev/null
+#       if test $status -eq 0
+#           return 0
+#       else
+#           if test $counter -gt maxwait
+#	       return 1
+#	   end
+#       end
+#   end
+#end
+#
+#function auth_esadc_esadc_0
+#   touch ~.Xauthority
+#   echo xauth generate :0 . trusted
+#   xauth generate :0 . trusted
+#end
+#function auth_esadc_tmrl_0
+#   ssh tmrl touch ~.Xauthority
+#   ssh tmrl xauth generate :0 . trusted
+#   ssh tmrl xauth extract - :0 | xauth merge - 
+#end
+#function auth_esadc_esadc_2
+#   touch ~.Xauthority
+#   echo xauth generate :2 . trusted
+#   xauth generate :2 . trusted
+#end
+#
+#set -x DISPLAY :2
+
+#if test (hostname) = dusteater
+#    eval ssh ec $firewall_0  > /dev/null ^ /dev/null
+#    eval ssh ec $firewall_1  > /dev/null ^ /dev/null
+#    eval ssh ec $firewall_check_0; set c0 $status
+#    eval ssh ec $firewall_check_1; set c1 $status
+#    if test $c0 -eq 0; and test $c1 -eq 0
+#	waitforX "ssh ec $cmdline0" ; and auth_esadc_esadc_0 
+#	waitforX "ssh ec $cmdline1" ; and auth_esadc_tmrl_0
+#	eval exec ssh ec $cmdline2  ; and auth_esadc_esadc_2
+#    else
+#	echo error: iptables somehow not working
+#    end
+#end
+
+#if test (hostname) = esadc
+    #eval $firewall_0 > /dev/null ^ /dev/null
+    #eval $firewall_1 > /dev/null ^ /dev/null
+    #eval $firewall_check_0 > /dev/null; set c0 $status
+    #eval $firewall_check_1 > /dev/null; set c1 $status
+    #if test $c0 -eq 0; and test $c1 -eq 0
+	    #waitforX  $cmdline0  :0
+	    #waitforX  $cmdline1  :1
+eval $cmdline0 &
+eval exec $cmdline2
+    #else
+	#    echo error: iptables somehow not working
+    #end
+#end

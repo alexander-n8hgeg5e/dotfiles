@@ -1,0 +1,4 @@
+exec --no-startup-id i3-msg 'exec st -t st1'
+exec --no-startup-id i3-msg 'exec st -t st2'
+
+bindsym Mod1+Return exec i3-sensible-terminal

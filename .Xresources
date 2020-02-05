@@ -1,0 +1,46 @@
+XTerm*FaceName: xft:Anonymous Pro:autohint=true:antialias=true
+XTerm*font1: xft:Anonymous Pro
+XTerm*font2: xft:Anonymous Pro
+XTerm*font3: xft:Anonymous Pro
+XTerm*font4: xft:Anonymous Pro
+XTerm*font5: xft:Anonymous Pro
+XTerm*font6: xft:Anonymous Pro
+XTerm*faceSize1: 8
+XTerm*faceSize2: 9
+XTerm*faceSize3: 10
+XTerm*faceSize4: 11
+XTerm*faceSize5: 12
+XTerm*faceSize6: 14
+XTerm*faceSize: 9
+Xft.dpi: 94
+XTerm*useClipping: false
+XTerm*OmitTranslation: fullscreen,scroll-lock,shift-fonts,wheel-mouse,default
+XTerm*Utf8Fonts: always
+XTerm*scaleHeight: 1
+XTerm*allowBoldFonts: false
+XTerm*allowFontOps: false
+XTerm*allowWindowOps: false
+Xterm*renderFont: true 
+Xterm*Utf8: 2
+XTerm*AltSendsEscape: false
+XTerm*MetaSendsEscape: false
+XTerm*DynamicColors: true
+XTerm*numColorRegisters: 1024
+XTerm*EightBitInput: false
+XTerm*internalBorder: 0
+XTerm*CursorColor: #00FF00
+XTerm.Backgroud.background: #000000
+XTerm*Foreground:   #00FF00
+XTerm*DecTerminalID: 340
+
+*VT100*translations:    #override \n\
+       Ctrl Shift <KeyPress> Prior : larger-vt-font() \n\
+       Ctrl Shift <KeyPress> Next : smaller-vt-font()
+
+
+xclock*hourColor: magenta
+xclock*minuteColor: blue
+xlcock*secondColor: blue
+xclock*majorColor: yellow
+xclock*minorColor: blue
+Xcursor.theme: a

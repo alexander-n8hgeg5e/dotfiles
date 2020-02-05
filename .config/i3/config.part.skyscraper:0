@@ -1,0 +1,6 @@
+exec --no-startup-id i3-msg 'exec st -t st2'
+exec --no-startup-id i3-msg 'exec st -t st4'
+
+
+workspace 2 output HDMI-1
+workspace 4 output VGA-1

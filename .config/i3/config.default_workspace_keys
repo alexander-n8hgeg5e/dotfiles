@@ -1,0 +1,5 @@
+# switch to workspace
+bindsym  Ctrl + Mod1 + w workspace 1
+bindsym  Ctrl + Mod1 + e workspace 2
+bindsym  Ctrl + Mod1 + r workspace 3
+

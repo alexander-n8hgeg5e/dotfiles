@@ -1,0 +1,4 @@
+:--newmode 1360x768_1 72.05 1360 1408 1440 1520 768  771 776 790 +HSync +VSync
+:--addmode VGA-1 1360x768_1
+:--output VGA-1 --mode 1360x768_1
+:--output VGA-1 --mode 1360x768

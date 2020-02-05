@@ -1,0 +1,62 @@
+
+###########     set up mailbox stuff    ##############
+#
+set    mbox_type=Maildir
+set    folder="~/mail"
+set    spoolfile="~/.my_notmuchfs/inbox"
+set    record="~/mail/Sent"
+set    postponed="~/mail/Draft"
+mailboxes ~/.my_notmuchfs/inbox  #manual said: should be set after folder,spoolfile
+
+
+#####  sending stuff   ################
+source "~/.mutt/identity_config"
+set sendmail="/usr/bin/msmtp"
+set use_from = yes # generate from header
+set use_envelope_from = yes   #use the -f option to tell the sendmail proc the from account
+##################################
+
+
+### source em ######
+source "~/.mutt/keybindings.conf"
+source "~/.mutt/colors.conf"
+source ~/PIM/mail_aliases
+source ~/.mutt/pgp_settings
+
+#####  some settings  ##############
+set  alias_file="~/PIM/mail_aliases"
+set  editor="e -w -g"
+unset wait_key
+set timeout=300
+set mail_check=5
+set mailcap_path = "~/.mutt/mailcap"
+bind attach <return>    view-mailcap
+auto_view text/html                                      # view html automatically
+alternative_order text/plain text/enriched text/html     # save html for last
+set sort=threads
+set sort_aux=last-date-received
+set sleep_time = 0 # be fast
+set pager_stop
+set smart_wrap
+set menu_scroll
+set send_charset = "us-ascii:utf-8"
+set mark_old=no
+set fast_reply=yes
+set include=yes
+set save_history=30000
+set autoedit=yes
+set edit_headers=yes
+set index_format="|%Z |%[%d.%m|%k:%M]|%30.30L|%M|%-60.60s%-2.2H%-5.5g|%4c"
+
+
+####   ignore   stuff   ##########
+ignore *
+unignore from date subject to cc
+unignore organization organisation x-mailer: x-newsreader: x-mailing-list:
+unignore posted-to:
+unignore x-label:
+unignore X-Bogosity:
+
+#### header ###########
+unhdr_order *
+hdr_order date: x-label: X-Bogosity: from to cc subject

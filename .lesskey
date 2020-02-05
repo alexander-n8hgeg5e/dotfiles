@@ -1,0 +1,125 @@
+#command
+d         forw-line
+e         back-line
+D         forw-line-force
+E         back-line-force
+i         back-scroll
+k         forw-scroll
+\e[5~     back-screen
+\e[6~     forw-screen
+z         forw-window
+w         back-window
+\e\40     forw-screen-force
+F         forw-forever
+\eF       forw-until-hilite
+R         repaint-flush
+r         repaint
+^R        repaint
+^L        repaint
+\eu       undo-hilite
+g         goto-line
+\kh       goto-line
+<         goto-line
+\e<       goto-line
+p         percent
+%         percent
+j         left-scroll
+l         right-scroll
+\e{       no-scroll
+\e}       end-scroll
+{         forw-bracket {}
+}         back-bracket {}
+(         forw-bracket ()
+)         back-bracket ()
+[         forw-bracket []
+]         back-bracket []
+\e^F      forw-bracket
+\e^B      back-bracket
+G         goto-end
+\e>       goto-end
+>         goto-end
+\ke       goto-end
+\eG       goto-end-buffered
+=         status
+^G        status
+:f        status
+/         forw-search
+?         back-search
+\e/       forw-search *
+\e?       back-search *
+n         repeat-search
+\en       repeat-search-all
+N         reverse-search
+\eN       reverse-search-all
+&         filter
+m         set-mark
+M         set-mark-bottom
+\em       clear-mark
+'         goto-mark
+^X^X      goto-mark
+E         examine
+:e        examine
+^X^V      examine
+:n        next-file
+:p        prev-file
+t         next-tag
+T         prev-tag
+:x        index-file
+:d        remove-file
+-         toggle-option
+:t        toggle-option t
+s         toggle-option o
+_         display-option
+|         pipe
+v         visual
+!         shell
++         firstcmd
+H         help
+h         help
+V         version
+0         digit
+1         digit
+2         digit
+3         digit
+4         digit
+5         digit
+6         digit
+7         digit
+8         digit
+9         digit
+q         quit
+Q         quit
+:q        quit
+:Q        quit
+ZZ        quit
+
+
+#line-edit
+\t        forw-complete
+\17       back-complete
+\e\t      back-complete
+^L        expand
+^V        literal
+^A        literal
+\el       right
+\kr       right
+\eh       left
+\kl       left
+\eb       word-left
+\e\kl     word-left
+\ew       word-right
+\e\kr     word-right
+\ei       insert
+\ex       delete
+\kx       delete
+\eX       word-delete
+\ekx      word-delete
+\e\b      word-backspace
+\e0       home
+\kh       home
+\e$       end
+\ke       end
+\ek       up
+\ku       up
+\ej       down
+^G        abort

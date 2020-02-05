@@ -1,0 +1,232 @@
+#!/usr/bin/env python3
+from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,warn_exp
+
+from subprocess import check_output,check_call,DEVNULL,call,Popen,CalledProcessError
+
+for thing in [ 'call','check_call','Popen', 'check_output' ]:
+    exec( "from subprocess import " + thing + " as subprocess_" + thing )
+
+from pylib.decorators import VerbosityDecorator
+from pylib.decorators import Subprocess_Popen_init_VerbosityDecorator
+from pylib.decorators import Subprocess_check_call_VerbosityDecorator
+from pylib.decorators import Subprocess_call_VerbosityDecorator
+from pylib.decorators import Subprocess_check_output_VerbosityDecorator
+
+@Subprocess_check_call_VerbosityDecorator
+def check_call(*z,**zz):
+        return subprocess_check_call(*z,**zz)
+
+@Subprocess_check_output_VerbosityDecorator
+def check_output(*z,**zz):
+    return subprocess_check_output(*z,**zz)
+
+@Subprocess_call_VerbosityDecorator
+def call(*z,**zz):
+        return subprocess_call(*z,**zz)
+
+class Popen(subprocess_Popen):
+    def __init__(self,*z,**zz):
+        dec = Subprocess_Popen_init_VerbosityDecorator(super().__init__)
+        dec.__call__(*z,**zz)
+
+from hashlib import md5
+from os.path import expanduser,expandvars
+from os import environ
+from time import sleep
+from os import get_terminal_size
+from sys import modules
+#from pylib.du import dd
+from pylib.xinit_utils import XinitError
+
+
+font = "Anonymous Pro:pixelsize=20:antialias=true:autohint=true"
+
+def parse_args():
+    from argparse import ArgumentParser
+    a=ArgumentParser()
+    a.add_argument('-D','--debug',action='store_true',default=False)
+    a.add_argument('-v','--verbose',action='store_true',default=False)
+    global args
+    args=a.parse_args()
+    if args.debug:
+        args.verbose=True
+    #if not args.debug:
+    #    global stdout
+    #    global stderr
+    #    stdout=DEVNULL
+    #    stderr=DEVNULL
+
+def setup_keyboard(display):
+    try:
+        hostname = check_output(["hostname"]).decode().strip()
+    except Exception as e:
+        warn_exp(e)
+        err("ERROR: could not get hostname")
+        raise
+    xkbmap_file_path=environ['HOME']+"/.xkbmap_"+hostname
+    with open(xkbmap_file_path,'rb') as f:
+        checksum = md5(f.read()).hexdigest()
+    msg='setup keyboard for display='+display
+    cmd=["xkbcomp", xkbmap_file_path, display ]
+    call(cmd,msg=msg)
+    check_call(['xset', 'r', 'rate', '130', '50'],env=environ.update({"DISPLAY":display}))
+    return checksum
+
+def gen_countdown_code(time):
+    countdown_code = \
+    """function countdown;
+         for i in (seq $argv[1] -1 1);
+             echo -n " t = -"$i" ";
+             for j in (seq 10);
+                 sleep 0.05;
+                 echo -n .;
+             end;
+             for j in (seq 10);
+                 sleep 0.05;
+                 tput dch 2;
+             end;
+             tput el1;tput cr;
+         end;
+         echo " >> zero << ";
+    end;
+    echo -e "this terminal window \nwill self destruct..."
+    countdown """+str(int(time))+""";"""
+    return countdown_code
+
+def _start_sd_terminal(time=600):
+    pid=""
+    while not len(pid) > 0:
+        pid = check_output  (
+                            [   
+                                "ssh", "xsky", "env", "DISPLAY=:0",
+                                "rind", "st", "-ttmpinittermwin",
+                                "-f", '"Anonymous Pro:pixelsize=20:antialias=true:autohint=true"',
+                                '-e', 'fish', '-c', '"$countdown_code"'
+                            ],
+                            )
+        sleep(2)
+    pid=pid.decode().strip()
+    info("started terminal pid="+pid)
+    return int(pid)
+
+def start_sd_terminal(time=180):
+    info("starting self destructing terminal on xserver...")
+    try:
+        display_var_backup = environ['DISPLAY']
+        environ.update({'DISPLAY':":0"})
+        pid = _start_sd_terminal(time=time)
+        info('waiting for terminal "'+str(pid)+'" ...')
+        
+        count=0
+        while not call(['ssh', 'xsky', 'ps', '--no-headers', '-p', str(pid)]) == 0:
+            sleep(2)
+            count+=1
+            if count > 10:
+                pid = _start_sd_terminal()
+    finally:
+        environ.update({'DISPLAY': display_var_backup })
+        
+    info('terminal done')
+
+def setup_xrandr():
+    call([ 'xrandr', '--dpi', '90', '--output', 'HDMI-1', '--rotate', 'left', '--pos', '0x0', '--primary' ])
+    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080' ])
+    call([ 'xrandr', '--delmode', 'VGA-1', '1920x1080_'],stderr=DEVNULL)
+    call([ 'xrandr', '--rmmode', '1920x1080_'],stderr=DEVNULL)
+    #xrandr --newmode 1920x1080_ 148.500 1920 2007 2052 2204 1080 1084 1089 1125 +hsync +vsync
+    call(
+            [ 'xrandr', '--newmode', '1920x1080_', '148.86399999999999010924',
+            '1920', '2007', '2052', '2204', '1080', '1084', '1089', '1125', '+hsync', '+vsync' 
+            ]
+        )
+    call([ 'xrandr', '--addmode', 'VGA-1', '1920x1080_' ])
+    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080_', '--rotate', 'left', '--pos', '768x0' ])
+
+if __name__=='__main__':
+    popens=[]
+    try:
+        info("####################################")
+        info("##  xinit xinitrc skyscraper ...  ##")
+        info("####################################")
+
+        parse_args()
+
+        try:
+            check_call(["synergy_skyscraper", "stop"],msg='stopping synergy')
+        except Exception as e:
+            warn_exp(e)
+        try:
+            check_call(["synergy_skyscraper", "starts"],msg='starting synergy server')
+        except Exception as e:
+            warn_exp(e)
+        try: 
+            checksum_0=setup_keyboard(environ['DISPLAY'])
+        except CalledProcessError as e:
+            ee=XinitError(e.msg)
+            ee.log()
+
+        environ.update({'DISPLAY':"skyscraper:0"})
+
+        ########################
+        ##  first get access  ##
+        ########################
+        start_sd_terminal()
+        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+esadc'],msg='setup xhost permission esadc')
+        check_call(['ssh', 'xsky', 'env', "DISPLAY=:0", 'xhost', '+dusteater'],msg='setup xhost permission dusteater')
+        ####################################################################
+
+
+        try:
+            environ.update({'DISPLAY':"skyscraper:0"})
+            checksum_1=setup_keyboard('skyscraper:0')
+            if not checksum_0 == checksum_1:
+                warn('WARNING: "xkb" keyboard setup probably incorrect !')
+
+        except CalledProcessError as e:
+            ee=XinitError(e.msg)
+            ee.log()
+        
+        # set up stuff
+        #xrdb -merge ~/.Xresources
+        
+        call(['xset', '+fp', expandvars('$HOME/.local/share/fonts') ], msg='adding fontdir ... ' )
+
+        setup_xrandr() 
+
+        call([ 'xset', 'dpms', '600', '1200', '3600' ],msg='dpms setup')
+        #xcalib -a -c ;xcalib -a -blue 1 1 85 -green 1 1 94  -red 1 1 100
+        
+        # start stuff
+        #info('starting pulseaudio ...')
+        #popens.append(Popen(['pulseaudio' ,'-D']))
+        #redshift -c ~/.redshift_skyscraper.conf &
+        
+        #popens.append(Popen([ 'clipster', '-d' ],msg='starting clipster ...'))
+        
+        #st -f $font &
+        
+        #sc -r &
+        try: 
+            check_call([ 'synergy_skyscraper', 'startc' ],msg='starting synergy-client')
+        except CalledProcessError:
+            warn("WARNING: synergy server startup returned non zero.")
+
+        try: 
+            p=Popen([ 'i3', '-c', expandvars('${HOME}/.config/i3/config_skyscraper:0') ],msg='starting i3 wm')
+            p.wait()
+        except Exception as e:
+            retcode=p.poll()
+            warn_exp(e)
+            warn('i3 terminated, exitcode="'+p.poll()+'"')
+            raise
+    except Exception as e:
+        warn_exp(e)
+    finally:
+        try:
+            call([ 'wm_conf_adj', 'off'],msg="adjusting config for state: xserver_on_skyscraper = disabled")
+        except Exception as e:
+            subprocess_call([ 'wm_conf_adj', 'off'])
+            warn_exp(e)
+
+    
+    # vim: set foldlevel=0 foldnestmax=2 foldmethod=indent :

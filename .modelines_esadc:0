@@ -1,0 +1,26 @@
+
+[
+    {
+        'name': 'loewe',
+        'mode_name' : '1360x768_loewe',
+        'freq': 72.050,
+        'hz' : 60,
+        'width': 1360,
+        'hstart': 1408,
+        'hend' : 1440,
+        'htotal':1520,
+        'height':767,
+        'vstart':775,
+        'vend':780,
+        'vtotal':790,
+        'hsync':'-',
+        'vsync':'-',
+        'displays':
+        {
+            'esadc:0' :
+            {
+                'outputname':'VGA-1'
+            }
+        }
+    }
+]

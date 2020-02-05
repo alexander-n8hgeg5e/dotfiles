@@ -1,0 +1,2 @@
+#!/bin/bash
+tmux -S/tmp/tmux_keyb_fix_socket new-session  -d -c $HOME/bin -s keyb_fix ./ii

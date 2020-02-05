@@ -1,0 +1,100 @@
+# i3 config file (v4)
+#
+# most important line is above the first one
+# right from the source code
+# so never ever think this is version3 code!,
+# you * * of detect_version function.
+
+exec "bash ${HOME}/.config/i3/gen_conf.bash"
+
+font pango:monospace 8
+layout tabbed
+workspace_layout tabbed
+focus_on_window_activation none
+
+for_window [class="^.*"] border none
+font pango:DejaVu Sans Mono 0
+
+#for_window [title=".*[.]pdf"] move workspace number 1
+
+for_window [class="st-256color"] border none
+for_window [title="st1"] move workspace number 1
+for_window [title="st1"] border none
+for_window [title="st2"] move workspace number 2
+for_window [title="st2"] border none
+for_window [title="st3"] move workspace number 3
+for_window [title="st3"] border none
+for_window [title="st4"] move workspace number 4
+for_window [title="st4"] border none
+
+for_window [class="conky"] border none
+for_window [title="conky"] move right
+for_window [title="conky"] resize set 3 ppt 0 ppt
+no_focus   [title="conky"]
+
+for_window [title="conky_disknode"] move right
+for_window [title="conky_disknode"] resize set 3 ppt 0 ppt
+no_focus   [title="conky_disknode"]
+
+for_window [class="menuwin"] border none
+for_window [class="menuwin"] move up
+for_window [class="menuwin"] resize set 0 ppt 90 ppt
+for_window [title="tmpinittermwin"] resize set 0 ppt 20 ppt
+
+for_window [class="clipster"] layout floating
+
+for_window [title="ImageMagick.*"] floating enable
+
+mouse_warping none
+
+floating_modifier Mod1
+
+bindsym Mod1 + Ctrl exec clipster -sc
+bindsym Mod1+space layout toggle all
+
+bindsym  Ctrl + Mod1 +z kill
+
+bindsym  Ctrl + Mod1 +space exec menu_run
+bindsym  Ctrl + Mod1 +s focus left
+bindsym  Ctrl + Mod1 +f focus right
+
+bindsym  Ctrl + Mod1 +Left focus left
+bindsym  Ctrl + Mod1 +Down focus down
+bindsym  Ctrl + Mod1 +Up focus up
+bindsym  Ctrl + Mod1 +Right focus right
+
+bindsym  Ctrl + Mod1 +a move left
+bindsym  Ctrl + Mod1 +Shift+k move down
+bindsym  Ctrl + Mod1 +Shift+i move up
+bindsym  Ctrl + Mod1 +g move right
+
+bindsym  Ctrl + Mod1 +Shift+Left move left
+bindsym  Ctrl + Mod1 +Shift+Down move down
+bindsym  Ctrl + Mod1 +Shift+Up move up
+bindsym  Ctrl + Mod1 +Shift+Right move right
+
+bindsym  Ctrl + Mod1 +v split v
+
+bindsym  Ctrl + Mod1 +Shift +c reload
+bindsym  Ctrl + Mod1 +Shift+r restart
+
+mode "resize" {
+        bindsym j resize shrink width 10 px or 10 ppt
+        bindsym k resize grow height 10 px or 10 ppt
+        bindsym l resize shrink height 10 px or 10 ppt
+        bindsym odiaeresis resize grow width 10 px or 10 ppt
+
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+
+bar {
+    mode hide
+    hidden_state hide
+    modifier none
+}

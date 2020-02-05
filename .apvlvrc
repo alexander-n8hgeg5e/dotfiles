@@ -1,0 +1,22 @@
+map i k
+map k j
+map j h
+map e kkkk
+map d jjjj
+map s hhhh
+map f llll
+set autoreload=0
+set autoscrolldoc=no
+map F f
+map + zi
+map - zo
+map <C-f> gt
+map <C-s> gT
+map <C-Left> <C-w>h
+map <C-Right> <C-w>l
+set pdfcache=1000
+set content=no
+set noinfo=no
+map , "
+set wrapscan=no
+set inverted=yes

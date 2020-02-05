@@ -1,0 +1,146 @@
+bind main e move-up
+bind main d move-down
+bind diff i scroll-line-up
+bind diff k scroll-line-down
+set split-view-width = 70%
+set main-view-id-display = yes
+set main-view-date = custom
+set main-view-date-format = "%y%m%d %H:%M"
+set main-view-author-display = abbreviated
+set main-view-author-width = 4
+set reference-format = [head] (branch) <tag> >>remote>> {>tracked-remote<}
+set tab-size = 4
+set commit-order = topo
+
+bind generic I @sh -c "echo -n %(commit) | xclip -selection c"
+
+bind generic 4 :toggle split-view-width +10%
+bind generic 6 :toggle split-view-width -10%
+
+#      View switching
+   bind generic    m     view-main    # Show main view
+#
+   bind generic     D    view-diff    # Show diff view
+#
+  bind generic    L     view-log     # Show log view
+#
+   bind generic   t      view-tree    # Show tree view
+#
+   bind generic    B    view-blob    # Show blob view
+#
+   bind generic    b     view-blame   # Show blame view
+#
+   bind generic    R     view-refs    # Show refs view
+#
+   bind generic   S      view-status  # Show status view
+#
+   bind generic   T      view-stage   # Show stage view
+#
+   bind generic   A      view-stash   # Show stash view
+#
+   bind generic    P     view-grep    # Show grep view
+#
+   bind generic   p      view-pager   # Show pager view
+#
+   bind generic   h      view-help    # Show help view
+#
+# View manipulation#
+    bind generic   <space>      enter               # Enter and open selected line
+    bind generic   <right>      enter               # Enter and open selected line
+    bind generic   f      enter               # Enter and open selected line
+#
+   bind generic     u    back                # Go back to the previous view state
+#
+#   bind generic         next                # Move to next
+#
+#   bind generic         previous            # Move to previous
+#
+#   bind generic         parent              # Move to parent
+#
+#   bind generic         view-next           # Move focus to the next view
+#
+   bind generic    r     refresh             # Reload and refresh view
+#
+   bind generic   2      maximize            # Maximize the current view
+#
+   bind generic   q      view-close          # Close the current view
+#
+   bind generic   ,      view-close-no-quit  # Close the current view without quitting
+   bind generic   s      view-close-no-quit  # Close the current view without quitting
+   bind generic   <left>      view-close-no-quit  # Close the current view without quitting
+#
+   bind generic    Q     quit                # Close all views and quit
+#
+##    View-specific actions
+    bind generic   U      status-update
+#   bind generic                             #Stage/unstage chunk or file changes
+#
+#   bind generic         status-revert       #Revert chunk or file changes
+#
+#   bind generic         status-merge        #Merge file using external tool
+#
+#   bind generic         stage-update-line   #Stage/unstage single line
+#
+#   bind generic         stage-split-chunk   #Split current diff chunk
+#
+##  Cursor navigation
+   bind generic  <Up>       move-up             #  Move cursor one line up
+#
+   bind generic  <down>        move-down           #  Move cursor one line down
+#
+   bind generic   <pagedown>      move-page-down      #  Move cursor one page down
+#
+   bind generic   <pageup>      move-page-up        #  Move cursor half a page up
+#
+   bind generic   d      next  #  Move cursor half a page down
+#
+   bind generic   e      previous   #  Move cursor one page up
+#
+   bind generic   g      move-first-line     #  Move cursor to first line
+#
+   bind generic  G       move-last-line      #  Move cursor to last line
+#
+#   bind generic         move-next-merge     #  Move cursor to next merge commit
+#
+#   bind generic         move-prev-merge     #  Move cursor to previous merge commit
+#
+##    Scrolling
+   bind generic    i     scroll-line-up    # Scroll one line up
+#
+   bind generic     k    scroll-line-down  # Scroll one line down
+#
+#   bind generic         scroll-page-up    # Scroll one page up
+#
+#   bind generic         scroll-page-down  # Scroll one page down
+#
+#   bind generic         scroll-first-col  # Scroll to the first line columns
+#
+   bind generic    j     scroll-left       # Scroll two columns left
+#
+   bind generic    l     scroll-right      # Scroll two columns right
+#
+##    Searching
+   bind generic     /    search       # Search the view
+#
+   bind generic     \    search-back  # Search backwards in the view
+#
+   bind generic    <F3>     find-next    # Find next search match
+#
+   bind generic    <F1>     find-prev    # Find previous search match
+#
+##    Misc
+   bind generic   E      edit           # Open in editor
+#
+   bind generic   :      prompt         # Open the prompt
+#
+   bind generic    o     options        # Open the options menu
+#
+#   bind generic    r     screen-redraw  # Redraw the screen
+#
+   bind generic   <Esc>      stop-loading   # Stop all loading views
+#
+#   bind generic         show-version   # Show version information
+#
+#   bind generic         none           # Do nothing
+#
+#

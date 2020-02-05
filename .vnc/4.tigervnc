@@ -1,0 +1,13 @@
+TigerVNC Configuration file Version 1.0
+
+fullscreenallmonitors=0
+fullscreen=0
+maximize
+
+geometry=1080x1920+4048+0
+passwd=~/.vnc/passwd
+
+viewonly
+shared
+log=*:stderr:100
+dotwhennocursor

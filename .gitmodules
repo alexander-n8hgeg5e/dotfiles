@@ -1,0 +1,24 @@
+[submodule ".config/nvim"]
+	path = .config/nvim
+	url = git@github.com:alexander-n8hgeg5e/.nvim.git
+[submodule ".config/fish"]
+	path = .config/fish
+	url = git@github.com:alexander-n8hgeg5e/.fish.git
+[submodule ".config/openbox"]
+	path = .config/openbox
+	url = git@github.com:alexander-n8hgeg5e/.openbox.git
+[submodule ".config/qutebrowser"]
+	path = .config/qutebrowser
+	url = git@github.com:alexander-n8hgeg5e/.qutebrowser
+[submodule ".ipython"]
+	path = .ipython
+	url = git@github.com:alexander-n8hgeg5e/.ipython.git
+[submodule ".w3m"]
+	path = .w3m
+	url = git@github.com:alexander-n8hgeg5e/.w3m.git
+[submodule ".my_notmuchfs_backing"]
+	path = .my_notmuchfs_backing
+	url = git@github.com:alexander-n8hgeg5e/.my_notmuchfs_backing.git
+[submodule ".navit"]
+	path = .navit
+	url = git@github.com:alexander-n8hgeg5e/.navit

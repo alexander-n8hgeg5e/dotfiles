@@ -1,0 +1,13 @@
+#bindsym  Ctrl + Mod1 + q workspace 1
+#bindsym  Ctrl + Mod1 + e workspace 3
+
+workspace 1 output VGA-1
+workspace 3 output DVI-I-1
+
+exec --no-startup-id i3-msg 'exec st -t st1'
+exec --no-startup-id i3-msg 'exec st -t st3'
+
+for_window [title="conky_disknode"] move workspace number 3
+for_window [title="conky"] move workspace number 3
+
+bindsym Mod1+Return exec st
