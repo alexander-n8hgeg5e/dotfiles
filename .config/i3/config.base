@@ -49,7 +49,7 @@ mouse_warping none
 
 floating_modifier Mod1
 
-bindsym Mod1 + Ctrl exec clipster -sc
+bindsym Ctrl + Mod1 + x exec clipster -sc
 bindsym Mod1+space layout toggle all
 
 bindsym  Ctrl + Mod1 +z kill
