@@ -2,5 +2,5 @@ text/html; w3m -I %{charset} -T text/html;copiousoutput;
 text/plain; w3m -I %{charset} -T text/plain;copiousoutput;
 image/jpeg; display;
 image/png; display;
-application/pdf; okular -;
+application/pdf; apvlv %s
 audio/*; vlc -I ncurses %s
