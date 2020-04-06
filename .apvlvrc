@@ -7,6 +7,8 @@ map s hhhh
 map f llll
 set autoreload=0
 set autoscrolldoc=no
+set autoscrollpage=yes
+set continuous=yes
 map F f
 map + zi
 map - zo
@@ -20,3 +22,4 @@ set noinfo=no
 map , "
 set wrapscan=no
 set inverted=yes
+set doubleclick=page
