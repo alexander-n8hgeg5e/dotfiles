@@ -1,3 +1,4 @@
 config.base
-config.part.feedkey_server
+config.part.feedkey_client
+config.default_workspace_keys
 config.part.skyscraper:0
