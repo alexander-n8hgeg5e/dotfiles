@@ -24,12 +24,14 @@ source ~/PIM/mail_aliases
 source ~/.mutt/pgp_settings
 
 #####  some settings  ##############
+#
 set  alias_file="~/PIM/mail_aliases"
 set  editor="e -w -g"
 unset wait_key
 set timeout=300
 set mail_check=5
 set mailcap_path = "~/.mutt/mailcap"
+set auto_tag
 bind attach <return>    view-mailcap
 auto_view text/html                                      # view html automatically
 alternative_order text/plain text/enriched text/html     # save html for last
@@ -46,7 +48,7 @@ set include=yes
 set save_history=30000
 set autoedit=yes
 set edit_headers=yes
-set index_format="|%Z |%[%d.%m|%k:%M]|%30.30L|%M|%-60.60s%-2.2H%-5.5g|%4c"
+set index_format="|%Z|%[%d.%m|%k:%M]|%30.30a|%M|%-60.60s%-2.2H%-5.5g|%4c"
 
 
 ####   ignore   stuff   ##########
@@ -60,3 +62,5 @@ unignore X-Bogosity:
 #### header ###########
 unhdr_order *
 hdr_order date: x-label: X-Bogosity: from to cc subject
+
+# vim: set filetype=muttrc nowrap :
