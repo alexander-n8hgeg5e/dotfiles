@@ -1,5 +1,5 @@
-bindsym  Ctrl + Mod1 + q workspace 1
-bindsym  Ctrl + Mod1 + e workspace 3
+#bindsym  Ctrl + Mod1 + q workspace 1
+#bindsym  Ctrl + Mod1 + e workspace 3
 
 workspace 1 output VGA-1
 workspace 3 output DVI-I-1
