@@ -1,33 +1,9 @@
 #!/usr/bin/env python3
-from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,warn_exp
+from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,DEBUG,warn_exp,debug
 
-from subprocess import check_output,check_call,DEVNULL,call,Popen,CalledProcessError
-
-for thing in [ 'call','check_call','Popen', 'check_output' ]:
-    exec( "from subprocess import " + thing + " as subprocess_" + thing )
-
-from pylib.decorators import VerbosityDecorator
-from pylib.decorators import Subprocess_Popen_init_VerbosityDecorator
-from pylib.decorators import Subprocess_check_call_VerbosityDecorator
-from pylib.decorators import Subprocess_call_VerbosityDecorator
-from pylib.decorators import Subprocess_check_output_VerbosityDecorator
-
-@Subprocess_check_call_VerbosityDecorator
-def check_call(*z,**zz):
-        return subprocess_check_call(*z,**zz)
-
-@Subprocess_check_output_VerbosityDecorator
-def check_output(*z,**zz):
-    return subprocess_check_output(*z,**zz)
-
-@Subprocess_call_VerbosityDecorator
-def call(*z,**zz):
-        return subprocess_call(*z,**zz)
-
-class Popen(subprocess_Popen):
-    def __init__(self,*z,**zz):
-        dec = Subprocess_Popen_init_VerbosityDecorator(super().__init__)
-        dec.__call__(*z,**zz)
+from subprocess import DEVNULL,CalledProcessError
+from pylib.syslog_utils.subprocess import check_output,check_call,call,Popen
+from time import time
 
 from hashlib import md5
 from os.path import expanduser,expandvars
@@ -46,6 +22,7 @@ def parse_args():
     a=ArgumentParser()
     a.add_argument('-D','--debug',action='store_true',default=False)
     a.add_argument('-v','--verbose',action='store_true',default=False)
+    a.add_argument("--keyev", action='store_true', help="use keyev, not synergy")
     global args
     args=a.parse_args()
     if args.debug:
@@ -58,7 +35,8 @@ def parse_args():
 
 def setup_keyboard(display):
     try:
-        hostname = check_output(["hostname"]).decode().strip()
+        hostname = check_output(["hostname"],loglevel=DEBUG)
+        hostname=hostname.decode().strip()
     except Exception as e:
         warn_exp(e)
         err("ERROR: could not get hostname")
@@ -68,8 +46,8 @@ def setup_keyboard(display):
         checksum = md5(f.read()).hexdigest()
     msg='setup keyboard for display='+display
     cmd=["xkbcomp", xkbmap_file_path, display ]
-    call(cmd,msg=msg)
-    check_call(['xset', 'r', 'rate', '130', '50'],env=environ.update({"DISPLAY":display}))
+    call(cmd,msg=msg,loglevel=DEBUG)
+    check_call(['xset', 'r', 'rate', '130', '50'],env=environ.update({"DISPLAY":display}),loglevel=DEBUG)
     return checksum
 
 def gen_countdown_code(time):
@@ -103,6 +81,7 @@ def _start_sd_terminal(time=600):
                                 "-f", '"Anonymous Pro:pixelsize=20:antialias=true:autohint=true"',
                                 '-e', 'fish', '-c', '"$countdown_code"'
                             ],
+                            loglevel=DEBUG,
                             )
         sleep(2)
     pid=pid.decode().strip()
@@ -118,31 +97,34 @@ def start_sd_terminal(time=180):
         info('waiting for terminal "'+str(pid)+'" ...')
         
         count=0
-        while not call(['ssh', 'xsky', 'ps', '--no-headers', '-p', str(pid)]) == 0:
-            sleep(2)
+        while not call(['ssh', 'xsky', 'ps', '--no-headers', '-p', str(pid)],loglevel=DEBUG) == 0:
+            sleep(1)
             count+=1
-            if count > 10:
+            if count in [1,2,3,5] or count%10==0:
                 pid = _start_sd_terminal()
+        debug("count="+str(count))
     finally:
         environ.update({'DISPLAY': display_var_backup })
         
     info('terminal done')
 
 def setup_xrandr():
-    call([ 'xrandr', '--dpi', '90', '--output', 'HDMI-1', '--rotate', 'left', '--pos', '0x0', '--primary' ])
-    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080' ])
-    call([ 'xrandr', '--delmode', 'VGA-1', '1920x1080_'],stderr=DEVNULL)
-    call([ 'xrandr', '--rmmode', '1920x1080_'],stderr=DEVNULL)
+    call([ 'xrandr', '--dpi', '90', '--output', 'HDMI-1', '--rotate', 'left', '--pos', '0x0', '--primary' ],loglevel=DEBUG)
+    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080' ],loglevel=DEBUG)
+    call([ 'xrandr', '--delmode', 'VGA-1', '1920x1080_'],stderr=DEVNULL,loglevel=DEBUG)
+    call([ 'xrandr', '--rmmode', '1920x1080_'],stderr=DEVNULL,loglevel=DEBUG)
     #xrandr --newmode 1920x1080_ 148.500 1920 2007 2052 2204 1080 1084 1089 1125 +hsync +vsync
     call(
             [ 'xrandr', '--newmode', '1920x1080_', '148.86399999999999010924',
             '1920', '2007', '2052', '2204', '1080', '1084', '1089', '1125', '+hsync', '+vsync' 
-            ]
+            ],
+            loglevel=DEBUG
         )
-    call([ 'xrandr', '--addmode', 'VGA-1', '1920x1080_' ])
-    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080_', '--rotate', 'left', '--pos', '768x0' ])
+    call([ 'xrandr', '--addmode', 'VGA-1', '1920x1080_' ],loglevel=DEBUG)
+    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080_', '--rotate', 'left', '--pos', '768x0' ],loglevel=DEBUG)
 
 if __name__=='__main__':
+    starttime=time()
     popens=[]
     try:
         info("####################################")
@@ -150,15 +132,16 @@ if __name__=='__main__':
         info("####################################")
 
         parse_args()
-
-        try:
-            check_call(["synergy_skyscraper", "stop"],msg='stopping synergy')
-        except Exception as e:
-            warn_exp(e)
-        try:
-            check_call(["synergy_skyscraper", "starts"],msg='starting synergy server')
-        except Exception as e:
-            warn_exp(e)
+        
+        if not args.keyev:
+            try:
+                check_call(["synergy_skyscraper", "stop"],msg='stopping synergy',loglevel=DEBUG)
+            except Exception as e:
+                warn_exp(e)
+            try:
+                check_call(["synergy_skyscraper", "starts"],msg='starting synergy server',loglevel=DEBUG)
+            except Exception as e:
+                warn_exp(e)
         try: 
             checksum_0=setup_keyboard(environ['DISPLAY'])
         except CalledProcessError as e:
@@ -171,8 +154,8 @@ if __name__=='__main__':
         ##  first get access  ##
         ########################
         start_sd_terminal()
-        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+esadc'],msg='setup xhost permission esadc')
-        check_call(['ssh', 'xsky', 'env', "DISPLAY=:0", 'xhost', '+dusteater'],msg='setup xhost permission dusteater')
+        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+esadc'],msg='setup xhost permission esadc',loglevel=DEBUG)
+        check_call(['ssh', 'xsky', 'env', "DISPLAY=:0", 'xhost', '+dusteater'],msg='setup xhost permission dusteater',loglevel=DEBUG)
         ####################################################################
 
 
@@ -189,11 +172,11 @@ if __name__=='__main__':
         # set up stuff
         #xrdb -merge ~/.Xresources
         
-        call(['xset', '+fp', expandvars('$HOME/.local/share/fonts') ], msg='adding fontdir ... ' )
+        call(['xset', '+fp', expandvars('$HOME/.local/share/fonts') ], msg='adding fontdir ... ' ,loglevel=DEBUG)
 
         setup_xrandr() 
 
-        call([ 'xset', 'dpms', '600', '1200', '3600' ],msg='dpms setup')
+        call([ 'xset', 'dpms', '600', '1200', '3600' ],msg='dpms setup',loglevel=DEBUG)
         #xcalib -a -c ;xcalib -a -blue 1 1 85 -green 1 1 94  -red 1 1 100
         
         # start stuff
@@ -206,27 +189,40 @@ if __name__=='__main__':
         #st -f $font &
         
         #sc -r &
-        try: 
-            check_call([ 'synergy_skyscraper', 'startc' ],msg='starting synergy-client')
-        except CalledProcessError:
-            warn("WARNING: synergy server startup returned non zero.")
-
+        if not args.keyev:
+            try: 
+                check_call([ 'synergy_skyscraper', 'startc' ],msg='starting synergy-client',loglevel=DEBUG)
+            except CalledProcessError:
+                warn('WARNING: synergy server startup returned non zero. exitcode="'+str(p.poll())+"'")
+        else:
+            try:
+                p=Popen([ 'keyev' ],msg='starting keyev')
+                popens.append(p)
+            except Exception as e:
+                warn_exp(e)
+            try:
+                p=Popen([ 'mouseev' ],msg='starting mouseev')
+                popens.append(p)
+            except Exception as e:
+                warn_exp(e)
         try: 
             p=Popen([ 'i3', '-c', expandvars('${HOME}/.config/i3/config_skyscraper:0') ],msg='starting i3 wm')
+            info("time = "+str(round(time()-starttime,2)))
             p.wait()
         except Exception as e:
             retcode=p.poll()
             warn_exp(e)
-            warn('i3 terminated, exitcode="'+p.poll()+'"')
+            warn('i3 terminated, exitcode="'+str(p.poll())+'"')
             raise
     except Exception as e:
-        warn_exp(e)
+        warn_exp(e,with_traceback=True)
     finally:
         try:
-            call([ 'wm_conf_adj', 'off'],msg="adjusting config for state: xserver_on_skyscraper = disabled")
+            if not args.keyev:
+                call([ 'wm_conf_adj', 'off'],msg="adjusting config for state: xserver_on_skyscraper = disabled",loglevel=DEBUG)
         except Exception as e:
-            subprocess_call([ 'wm_conf_adj', 'off'])
-            warn_exp(e)
+            subprocess_call([ 'wm_conf_adj', 'off'],loglevel=DEBUG)
+            warn_exp(e,with_traceback=True)
 
     
     # vim: set foldlevel=0 foldnestmax=2 foldmethod=indent :
