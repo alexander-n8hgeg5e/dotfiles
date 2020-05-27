@@ -10,6 +10,8 @@ set cmdline "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :0 \
 +iglx \
 -depth 16 \
 -fbbpp 16 \
+-dpms \
+-xinerama \
 vt7"
 
 #set cmdline "ssh root@skyscraper nice -n-20 ionice -c1 -n3 chrt -rr 30 X :0 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
