@@ -157,11 +157,11 @@ def is_skyscraper_online(timeout=60):
     else:
         return False
 
-def start_restart_skyscraper(timeout=180):
+def start_restart_skyscraper(timeout=240):
     restartcmd=[ 'sudo', 'rc-service', 'skyscraper', 'restart']
     run_check_cmd_with_timeout( timeout ,restartcmd,is_skyscraper_online)
 
-def prepare_skyscraper(timeoutmult=1,stop_running_xserver=True):
+def prepare_skyscraper(timeoutmult=1.5,stop_running_xserver=True):
     """
     make sure skyscraper is online and ready to run the xserver
     """
