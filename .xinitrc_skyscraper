@@ -50,7 +50,7 @@ def setup_keyboard(display):
     check_call(['xset', 'r', 'rate', '130', '50'],env=environ.update({"DISPLAY":display}),loglevel=DEBUG)
     return checksum
 
-def gen_countdown_code(time):
+def gen_countdown_code(timeout):
     countdown_code = \
     """function countdown;
          for i in (seq $argv[1] -1 1);
@@ -68,12 +68,13 @@ def gen_countdown_code(time):
          echo " >> zero << ";
     end;
     echo -e "this terminal window \nwill self destruct..."
-    countdown """+str(int(time))+""";"""
+    countdown """+str(int(timeout))+""";"""
     return countdown_code
 
-def _start_sd_terminal(time=600):
+def _start_sd_terminal(timeout=600):
     pid=""
-    while not len(pid) > 0:
+    starttime=time()
+    while not len(pid) > 0 or (time() - starttime) > time:
         pid = check_output  (
                             [   
                                 "ssh", "xsky", "env", "DISPLAY=:0",
@@ -88,12 +89,12 @@ def _start_sd_terminal(time=600):
     info("started terminal pid="+pid)
     return int(pid)
 
-def start_sd_terminal(time=180):
+def start_sd_terminal(timeout=180):
     info("starting self destructing terminal on xserver...")
     try:
         display_var_backup = environ['DISPLAY']
         environ.update({'DISPLAY':":0"})
-        pid = _start_sd_terminal(time=time)
+        pid = _start_sd_terminal(timeout=timeout)
         info('waiting for terminal "'+str(pid)+'" ...')
         
         count=0
@@ -101,7 +102,7 @@ def start_sd_terminal(time=180):
             sleep(1)
             count+=1
             if count in [1,2,3,5] or count%10==0:
-                pid = _start_sd_terminal()
+                pid = _start_sd_terminal(timeout=timeout)
         debug("count="+str(count))
     finally:
         environ.update({'DISPLAY': display_var_backup })
