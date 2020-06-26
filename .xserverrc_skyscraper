@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
-from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,warn_exp,DEBUG,debug
-from subprocess import CalledProcessError,TimeoutExpired,DEVNULL
-from pylib.syslog_utils.subprocess import check_output,check_call,call
+WAITFILE="/tmp/wait_for_xserverrc"
 
-from time import sleep,time
+from pylib.syslog_utils import info
+from subprocess import TimeoutExpired,DEVNULL
+from time import time
 from os import execvp
-#from pylib.du import dd, ptb
-from pylib.du import ptb
-from sys import modules
-from pylib.xinit_utils import SkyscraperError
+from pylib.xinit_utils import *
 
 cmdline =   [
                 'sudo', 'nice', '-n-20', 'ionice', '-c1', '-n3',
@@ -51,164 +48,32 @@ def parse_args():
     global cmdline
     cmdline+=args.xserverargs
 
-def get_xpids(timeout=10):
-    cmd = [ 'ssh', 'root@skyscraper', 'ps', '-p','1','-C', 'X', '--no-headers', '-o', 'pid']
-    cmd_ssh_pipe_stop = [ 'ssh', '-O', 'exit', 'root@skyscraper' ]
-    t0 = time()
-    try:
-        out = check_output( cmd ,stderr=stderr,timeout=timeout,loglevel=DEBUG)
-    except TimeoutExpired:
-        timeout = timeout - time() + t0
-        call(cmd_ssh_pipe_stop,stdout=stdout,stderr=stderr,timeout=timeout,loglevel=DEBUG)
-        timeout = timeout - time() + t0
-        out = check_output( cmd ,stderr=stderr,timeout=timeout,loglevel=DEBUG)
-    try:
-        out=out.decode().split('\n')
-    except AttributeError as e:
-        out=[]
-    pids=[]
-    for line in out:
-        pid=line.strip()
-        if len(pid) > 0:
-            pid=int(pid)
-            if not pid == 1:
-                pids.append(pid)
-    return pids
-
-def is_X_running_on_skyscraper(timeout=5):
-    count_xpids=len(get_xpids(timeout=timeout))
-    return count_xpids!=0
-
-def not_exists_X_lockfile_on_skyscraper(timeout=40, min_timeout=21):
-    """
-    Returns "True" if the x lockfile does not exist on skyscraper.
-    Somehow, ssh login takes aprox. 20[s].
-    """
-    timeout=max(min_timeout,timeout)
-    cmd= ['ssh','skyscraper',"fish -c 'not test -e /tmp/.X0-lock'"]
-    retval = call(cmd,stderr=stderr,stdout=stdout,timeout=timeout,loglevel=DEBUG) == 0
-    return retval
-
-def delete_X_lockfile_on_skyscraper(timeout=5):
-    cmd= ['ssh','skyscraper',"fish -c 'rm /tmp/.X0-lock'" ]
-    check_call(cmd,stderr=stderr,stdout=stdout,timeout=timeout,loglevel=DEBUG)
-
-def kill_signal_X_on_skyscraper(sigstr,timeout=10):
-    t0 = time()
-    xpids=get_xpids(timeout=timeout)
-    if len(xpids) > 0:
-        cmd = [ 'ssh', 'root@skyscraper', '/bin/kill', '--signal', sigstr ] + list(str(pid) for pid in xpids)
-        timeout = timeout - time() + t0
-        try:
-            check_call(cmd,stdout=stdout,stderr=stderr,timeout=timeout,loglevel=DEBUG)
-        except CalledProcessError as e:
-            print(e)
-            print(cmd)
-            ptb(e)
-
-def kill_stagevise_X_on_skyscraper(timeout=15):
-    t0 = time()
-    kill_signal_X_on_skyscraper('QUIT',timeout=timeout)
-    sleep(0.01)
-    timeout = timeout - time() + t0
-    kill_signal_X_on_skyscraper('TERM',timeout=timeout)
-    sleep(0.01)
-    timeout = timeout - time() + t0
-    kill_signal_X_on_skyscraper('KILL',timeout=timeout)
-
-def run_check_cmd_with_timeout(timeout,cmd,confirmfunc):
-    t0 = time()
-    if confirmfunc(timeout=timeout) is True:
-            return True
-    while True:
-        timeout = timeout - time() + t0
-        call(cmd,stdout=stdout,stderr=stderr,timeout = timeout,loglevel=DEBUG)
-        timeout = timeout - time() + t0
-        if confirmfunc(timeout = timeout) is True:
-            return True
-
-def do_check_with_timeout(timeout,cmd,confirmfunc):
-    t0 = time()
-    if confirmfunc(timeout=timeout) is True:
-            return True
-    while True:
-        timeout = timeout - time() + t0
-        cmd(timeout=timeout)
-        timeout = timeout - time() + t0
-        if confirmfunc(timeout = timeout) is True:
-            return True
-
-def is_skyscraper_online(timeout=60):
-    cmds=[['sudo','rc-service','skyscraper','status']]
-    cmds+= [['ssh','root@skyscraper','uptime']]
-    rc_status   = call(cmds[0],stdout=stdout,stderr=stderr,timeout=int(timeout/2),loglevel=DEBUG)
-    if rc_status == 0:
-        ssh_uptime = call(cmds[1],stdout=stdout,stderr=stderr,timeout=int(timeout/2),loglevel=DEBUG)
-        if ssh_uptime == 0:
-            return True
-        else:
-            return "unknown"
-    elif rc_status == 8: # starting
-        return "starting"
-    elif rc_status == 4: # starting
-        return "stopping"
-    elif rc_status == 3: # stopped
-        return False
-    else:
-        return False
-
-def start_restart_skyscraper(timeout=240):
-    restartcmd=[ 'sudo', 'rc-service', 'skyscraper', 'restart']
-    run_check_cmd_with_timeout( timeout ,restartcmd,is_skyscraper_online)
-
-def prepare_skyscraper(timeoutmult=1.5,stop_running_xserver=True):
-    """
-    make sure skyscraper is online and ready to run the xserver
-    """
-    timeouts=[240*timeoutmult,60*timeoutmult,20*timeoutmult]
-    
-    if do_check_with_timeout( timeouts[0], start_restart_skyscraper , is_skyscraper_online ):
-        # online
-        if stop_running_xserver:
-            # need stopped xserver
-            if do_check_with_timeout    (
-                                            timeouts[1], kill_stagevise_X_on_skyscraper,
-                                            lambda timeout=1: not is_X_running_on_skyscraper(timeout=timeout)
-                                        ):
-                if not do_check_with_timeout   ( 
-                                                    timeouts[2], delete_X_lockfile_on_skyscraper,
-                                                    not_exists_X_lockfile_on_skyscraper
-                                                ):
-                    raise SkyscraperNotAwakeError()
-        else:
-            # done
-            pass
-    else:
-        # offline
-        raise SkyscraperNotAwakeError("ERROR: skyscraper did not start")
-
 ############
 ##  main  ##
 ############
 if __name__=='__main__':
-    starttime=time()
+    with open(WAITFILE,mode="wt") as f:
+        starttime=time()
+        f.write("True, "+repr(starttime))
     info("#####################################")
     info("##  xinit xserverrc skyscraper ... ##")
     info("#####################################")
     parse_args()
     try:
         prepare_skyscraper(stop_running_xserver=True,timeoutmult=5)
-    except TimeoutExpired:
+    except (TimeoutExpired,Timeout):
         try:
             start_restart_skyscraper()
-            prepare_skyscraper(stop_running_xserver=True)
-        except TimeoutExpired:
+            prepare_skyscraper(stop_running_xserver=True,timeoutmult=5)
+        except (TimeoutExpired,Timeout):
             raise SkyscraperNotAwakeError("Timeout while looking for life signs of skyscraper.")
     
     info("###########################")
     info("##  SKYSCRAPER IS READY  ##")
     info("###########################")
     info("time = "+str(round(time()-starttime,2)))
+    with open(WAITFILE,mode="wt") as f:
+        f.write("False, "+repr(starttime))
     execvp('ssh', ['-oControlPath=none', 'xsky'] + cmdline )
 
 # vim: set foldlevel=0 foldnestmax=2 foldmethod=indent nowrap:
