@@ -74,7 +74,7 @@ def gen_countdown_code(timeout):
 def _start_sd_terminal(timeout=600):
     pid=""
     starttime=time()
-    while not len(pid) > 0 or (time() - starttime) > time:
+    while not len(pid) > 0 or (time() - starttime) > timeout:
         pid = check_output  (
                             [   
                                 "ssh", "xsky", "env", "DISPLAY=:0",
