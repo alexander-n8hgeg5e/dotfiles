@@ -8,8 +8,8 @@ set cmdline "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :0 \
 -arinterval 50 \
 -listen inet \
 +iglx \
--depth 16 \
--fbbpp 16 \
+-depth 24 \
+-fbbpp 24 \
 -dpms \
 -xinerama \
 vt7"
