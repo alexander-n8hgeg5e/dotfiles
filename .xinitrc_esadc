@@ -56,8 +56,8 @@ env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 setup_x $hostname
 
 #xserver_start &
 pulseaudio -D &
-#synergy_tmrl_esadc_client &
 setup_xrandr
+setup_x
 #redshift -c ~/.redshift_esadc.conf &
 env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 clipster -d &
 screen_on_control &
