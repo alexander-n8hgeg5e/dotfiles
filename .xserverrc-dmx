@@ -1,8 +1,8 @@
 #!/bin/fish
 set -x DISPLAY :2
 
-set cmdline0 "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :0 -ardelay 130 -arinterval 50 -listen inet -iglx w-render -depth 24 vt7"
-set cmdline2 "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo Xdmx :2 -display skyscraper:0 -display :0 -input local -norender -noglxproxy -xinerama"
+set cmdline0 "sudo nice -n-20 ionice -c2 -n0 chrt -rr 30 sudo -u $USER X :0 -ardelay 130 -arinterval 50 -listen inet -iglx w-render -depth 24 vt7"
+set cmdline2 "sudo nice -n-20 ionice -c2 -n0 chrt -rr 30 sudo Xdmx :2 -display skyscraper:0 -display :0 -input local -norender -noglxproxy -xinerama"
 
 #set firewall_0 "sudo rc-service iptables start"
 #set firewall_1 "sudo rc-service ip6tables start"

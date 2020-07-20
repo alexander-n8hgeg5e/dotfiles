@@ -9,7 +9,7 @@ from os import execvp
 from pylib.xinit_utils import *
 
 cmdline =   [
-                'sudo', 'nice', '-n-20', 'ionice', '-c1', '-n3',
+                'sudo', 'nice', '-n-20', 'ionice', '-c2', '-n0',
                 'chrt', '-rr', '30', 'sudo', '-u',
                 'xserver', 'X', ':0',
                 '-quiet',

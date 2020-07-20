@@ -2,7 +2,7 @@
 
 #set cmdline "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :0 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 -configdir xorg.conf.d_virthead"
 
-set cmdline "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :0 \
+set cmdline "sudo nice -n-20 ionice -c2 -n0 chrt -rr 30 sudo -u $USER X :0 \
 -allowNonLocalXvidtune \
 -ardelay 130 \
 -arinterval 50 \
