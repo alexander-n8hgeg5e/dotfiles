@@ -6,7 +6,7 @@
 [
  [  'h_dusteater'  ,    0          ,  'tl' ,   ['dusteater']         , 0     , 0     , 'skyscraper:0' ],
  [  'h_skyscraper' ,    0          ,  'tl' ,   ['skyscraper']        , 0     , 0     , 'skyscraper:0' ],
-# [  'h_esadc'      ,    0          ,  'tl' ,   ['esadc']             , 0     , 0     , 'skyscraper:0' ],
- [  ''             ,    0          ,  'tl' ,   ['esadc']             , 1873  , 0     , 'esadc:0'      ],
- [  'disknode'     ,    0          ,  'bl' ,   ['esadc']             , 1873  , 350   , 'esadc:0'      ],
+ [  'h_esadc'      ,    0          ,  'tl' ,   ['esadc']             , 768     , 0     , 'skyscraper:0' ],
+# [  ''             ,    0          ,  'tl' ,   ['esadc']             , 1873  , 0     , 'esadc:0'      ],
+# [  'disknode'     ,    0          ,  'bl' ,   ['esadc']             , 1873  , 350   , 'esadc:0'      ],
 ]
