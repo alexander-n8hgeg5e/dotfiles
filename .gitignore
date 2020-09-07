@@ -2,3 +2,5 @@
 bin
 .prefix_vars
 /.filterkwds
+/.gitpacks
+/.gitpacks/**
