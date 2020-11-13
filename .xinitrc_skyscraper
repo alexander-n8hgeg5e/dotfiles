@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import sys
+#sys.path.insert(1,"/var/src/pylib")
+
 WAITFILE="/tmp/wait_for_xserverrc"
 
 from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,DEBUG,warn_exp,debug
@@ -14,6 +17,7 @@ from os import get_terminal_size,stat
 from sys import modules
 #from pylib.du import dd
 from pylib.xinit_utils import *
+from socket import gethostname
 
 
 def parse_args():
@@ -51,21 +55,21 @@ def setup_keyboard(display):
 
 def gen_countdown_code(timeout):
     countdown_code = \
-    """function countdown;
-         for i in (seq $argv[1] -1 1);
-             echo -n " t = -"$i" ";
-             for j in (seq 10);
+    """countdown(){
+         for i in $(seq "${1}" -1 1); do
+             echo -n " t = -${i} ";
+             for j in $(seq 10); do
                  sleep 0.05;
                  echo -n .;
-             end;
-             for j in (seq 10);
+             done
+             for j in $(seq 10); do
                  sleep 0.05;
                  tput dch 2;
-             end;
+             done
              tput el1;tput cr;
-         end;
+         done
          echo " >> zero << ";
-    end;
+    }
     echo -e "this terminal window \nwill self destruct..."
     countdown """+str(int(timeout))+""";"""
     return countdown_code
@@ -79,7 +83,7 @@ def _start_sd_terminal(timeout=600):
                                 "ssh", "xsky", "env", "DISPLAY=:0",
                                 "rind", "st", "-ttmpinittermwin",
                                 "-f", '"Anonymous Pro:pixelsize=20:antialias=true:autohint=true"',
-                                '-e', 'fish', '-c', '"$countdown_code"'
+                                '-e', 'sh', '-c', "'"+gen_countdown_code(60)+"'"
                             ],
                             loglevel=DEBUG,
                             )
@@ -122,6 +126,12 @@ def setup_xrandr():
         )
     call([ 'xrandr', '--addmode', 'VGA-1', '1920x1080_' ],loglevel=DEBUG)
     call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080_', '--rotate', 'left', '--pos', '768x0' ],loglevel=DEBUG)
+
+def get_nodelist():
+    with open("/etc/nodelist")  as f:
+        nodes=f.read().split("\n")
+    nodes=[node.strip() for node in nodes]
+    return nodes
 
 if __name__=='__main__':
     popens=[]
@@ -167,8 +177,10 @@ if __name__=='__main__':
         ##  first get access  ##
         ########################
         start_sd_terminal()
-        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+esadc'],msg='setup xhost permission esadc',loglevel=DEBUG)
-        check_call(['ssh', 'xsky', 'env', "DISPLAY=:0", 'xhost', '+dusteater'],msg='setup xhost permission dusteater',loglevel=DEBUG)
+        ownnode=gethostname()
+        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+ownnode],msg='setup xhost permission '+ownnode,loglevel=DEBUG)
+        for node in get_nodelist():
+            check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+node],msg='setup xhost permission '+node,loglevel=DEBUG)
         ####################################################################
 
 
@@ -179,7 +191,7 @@ if __name__=='__main__':
                 warn('WARNING: "xkb" keyboard setup probably incorrect !')
 
         except CalledProcessError as e:
-            ee=XinitError(e.msg)
+            ee=XinitError(str(e))
             ee.log()
         
         # set up stuff
