@@ -38,7 +38,7 @@ def parse_args():
 
 def setup_keyboard(display):
     try:
-        hostname = check_output(["hostname"],loglevel=DEBUG)
+        hostname = check_output(["hostname"],loglevel=WARN)
         hostname=hostname.decode().strip()
     except Exception as e:
         warn_exp(e)
@@ -49,8 +49,8 @@ def setup_keyboard(display):
         checksum = md5(f.read()).hexdigest()
     msg='setup keyboard for display='+display
     cmd=["xkbcomp", xkbmap_file_path, display ]
-    call(cmd,msg=msg,loglevel=DEBUG)
-    check_call(['xset', 'r', 'rate', '130', '50'],env=environ.update({"DISPLAY":display}),loglevel=DEBUG)
+    call(cmd,msg=msg,loglevel=WARN)
+    check_call(['xset', 'r', 'rate', '130', '50'],env=environ.update({"DISPLAY":display}),loglevel=WARN)
     return checksum
 
 def gen_countdown_code(timeout):
@@ -85,7 +85,7 @@ def _start_sd_terminal(timeout=600):
                                 "-f", '"Anonymous Pro:pixelsize=20:antialias=true:autohint=true"',
                                 '-e', 'sh', '-c', "'"+gen_countdown_code(30)+"'"
                             ],
-                            loglevel=DEBUG,
+                            loglevel=WARN,
                             )
         sleep(2)
     pid=pid.decode().strip()
@@ -101,7 +101,7 @@ def start_sd_terminal(timeout=180):
         info('waiting for terminal "'+str(pid)+'" ...')
         
         count=0
-        while not call(['ssh', 'xsky', 'ps', '--no-headers', '-p', str(pid)],loglevel=DEBUG) == 0:
+        while not call(['ssh', 'xsky', 'ps', '--no-headers', '-p', str(pid)],loglevel=WARN) == 0:
             sleep(1)
             count+=1
             if count in [1,2,3,5] or count%10==0:
@@ -113,19 +113,19 @@ def start_sd_terminal(timeout=180):
     info('terminal done')
 
 def setup_xrandr():
-    call([ 'xrandr', '--dpi', '90', '--output', 'HDMI-1', '--rotate', 'left', '--pos', '0x0', '--primary' ],loglevel=DEBUG)
-    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080' ],loglevel=DEBUG)
-    call([ 'xrandr', '--delmode', 'VGA-1', '1920x1080_'],stderr=DEVNULL,loglevel=DEBUG)
-    call([ 'xrandr', '--rmmode', '1920x1080_'],stderr=DEVNULL,loglevel=DEBUG)
+    call([ 'xrandr', '--dpi', '90', '--output', 'HDMI-1', '--rotate', 'left', '--pos', '0x0', '--primary' ],loglevel=WARN)
+    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080' ],loglevel=WARN)
+    call([ 'xrandr', '--delmode', 'VGA-1', '1920x1080_'],stderr=DEVNULL,loglevel=WARN)
+    call([ 'xrandr', '--rmmode', '1920x1080_'],stderr=DEVNULL,loglevel=WARN)
     #xrandr --newmode 1920x1080_ 148.500 1920 2007 2052 2204 1080 1084 1089 1125 +hsync +vsync
     call(
             [ 'xrandr', '--newmode', '1920x1080_', '148.86399999999999010924',
             '1920', '2007', '2052', '2204', '1080', '1084', '1089', '1125', '+hsync', '+vsync' 
             ],
-            loglevel=DEBUG
+            loglevel=WARN
         )
-    call([ 'xrandr', '--addmode', 'VGA-1', '1920x1080_' ],loglevel=DEBUG)
-    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080_', '--rotate', 'left', '--pos', '768x0' ],loglevel=DEBUG)
+    call([ 'xrandr', '--addmode', 'VGA-1', '1920x1080_' ],loglevel=WARN)
+    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080_', '--rotate', 'left', '--pos', '768x0' ],loglevel=WARN)
 
 def get_nodelist():
     with open("/etc/nodelist")  as f:
@@ -162,11 +162,11 @@ if __name__=='__main__':
         
         if not args.keyev:
             try:
-                check_call(["synergy_skyscraper", "stop"],msg='stopping synergy',loglevel=DEBUG)
+                check_call(["synergy_skyscraper", "stop"],msg='stopping synergy',loglevel=WARN)
             except Exception as e:
                 warn_exp(e)
             try:
-                check_call(["synergy_skyscraper", "starts"],msg='starting synergy server',loglevel=DEBUG)
+                check_call(["synergy_skyscraper", "starts"],msg='starting synergy server',loglevel=WARN)
             except Exception as e:
                 warn_exp(e)
         try: 
@@ -182,9 +182,9 @@ if __name__=='__main__':
         ########################
         start_sd_terminal()
         ownnode=gethostname()
-        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+ownnode],msg='setup xhost permission '+ownnode,loglevel=DEBUG)
+        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+ownnode],msg='setup xhost permission '+ownnode,loglevel=WARN)
         for node in get_nodelist():
-            check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+node],msg='setup xhost permission '+node,loglevel=DEBUG)
+            check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+node],msg='setup xhost permission '+node,loglevel=WARN)
         ####################################################################
 
 
@@ -201,11 +201,11 @@ if __name__=='__main__':
         # set up stuff
         #xrdb -merge ~/.Xresources
         
-        call(['xset', '+fp', expandvars('$HOME/.local/share/fonts') ], msg='adding fontdir ... ' ,loglevel=DEBUG)
+        call(['xset', '+fp', expandvars('$HOME/.local/share/fonts') ], msg='adding fontdir ... ' ,loglevel=WARN)
 
         setup_xrandr() 
 
-        call([ 'xset', 'dpms', '600', '1200', '3600' ],msg='dpms setup',loglevel=DEBUG)
+        call([ 'xset', 'dpms', '600', '1200', '3600' ],msg='dpms setup',loglevel=WARN)
         #xcalib -a -c ;xcalib -a -blue 1 1 85 -green 1 1 94  -red 1 1 100
         
         # start stuff
@@ -248,9 +248,9 @@ if __name__=='__main__':
     finally:
         try:
             if not args.keyev:
-                call([ 'wm_conf_adj', 'off'],msg="adjusting config for state: xserver_on_skyscraper = disabled",loglevel=DEBUG)
+                call([ 'wm_conf_adj', 'off'],msg="adjusting config for state: xserver_on_skyscraper = disabled",loglevel=WARN)
         except Exception as e:
-            subprocess_call([ 'wm_conf_adj', 'off'],loglevel=DEBUG)
+            subprocess_call([ 'wm_conf_adj', 'off'],loglevel=WARN)
             warn_exp(e,with_traceback=True)
 
     
