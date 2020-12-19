@@ -25,7 +25,7 @@ def parse_args():
     a=ArgumentParser()
     a.add_argument('-D','--debug',action='store_true',default=False)
     a.add_argument('-v','--verbose',action='store_true',default=False)
-    a.add_argument("--keyev", action='store_true', help="use keyev, not synergy")
+    a.add_argument("--keyev", action='store_true', help="use keyev, not synergy",default=True)
     global args
     args=a.parse_args()
     if args.debug:
@@ -83,7 +83,7 @@ def _start_sd_terminal(timeout=600):
                                 "ssh", "xsky", "env", "DISPLAY=:0",
                                 "rind", "st", "-ttmpinittermwin",
                                 "-f", '"Anonymous Pro:pixelsize=20:antialias=true:autohint=true"',
-                                '-e', 'sh', '-c', "'"+gen_countdown_code(60)+"'"
+                                '-e', 'sh', '-c', "'"+gen_countdown_code(30)+"'"
                             ],
                             loglevel=DEBUG,
                             )
@@ -131,14 +131,18 @@ def get_nodelist():
     with open("/etc/nodelist")  as f:
         nodes=f.read().split("\n")
     nodes=[node.strip() for node in nodes]
+    while "" in nodes:
+        nodes.pop(nodes.index(""))
     return nodes
 
 if __name__=='__main__':
+    info("####################################")
+    info("##  xinit xinitrc skyscraper ...  ##")
+    info("####################################")
+    master_display=environ['DISPLAY']
+    debug("master display = \"{}\"".format(master_display))
     popens=[]
     try:
-        info("####################################")
-        info("##  xinit xinitrc skyscraper ...  ##")
-        info("####################################")
 
         # xinit does not wait for xserver
         # need to wait here
@@ -215,14 +219,14 @@ if __name__=='__main__':
         
         #sc -r &
         if not args.keyev:
-            try: 
-                check_call([ 'synergy_skyscraper', 'startc' ],msg='starting synergy-client',loglevel=DEBUG)
-            except CalledProcessError:
-                warn('WARNING: synergy server startup returned non zero. exitcode="'+str(p.poll())+"'")
+            raise Exception("synergy is not supported any more")
         else:
             try:
-                p=Popen([ 'keyev' ],msg='starting keyev')
+                display_var_backup=environ['DISPLAY']
+                environ.update({'DISPLAY':master_display})
+                p=Popen([ 'keyev' ],msg='starting keyev',env=environ)
                 popens.append(p)
+                environ['DISPLAY']=display_var_backup
             except Exception as e:
                 warn_exp(e)
             try:
