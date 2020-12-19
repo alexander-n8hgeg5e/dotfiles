@@ -6,7 +6,7 @@
 
 #set cmdline_skyscraper "nice -n-20 ionice -c1 -n3 chrt -rr 30 X :1 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
 
-set hostname (hostname)
+set _hostname (hostname)
 
 function clean
     ssh de killall redshift
@@ -48,11 +48,11 @@ end
 #    end
 #end
 #
-if test $argv[1] = c   #clean
+if test "$argv[1]" = c   #clean
     clean
 end
 
-env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 setup_x $hostname 
+env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 setup_x $_hostname 
 
 #xserver_start &
 pulseaudio -D &
