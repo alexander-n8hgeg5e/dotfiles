@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 
+import sys
+sys.path.insert(1,"/var/src/pylib")
+
 WAITFILE="/tmp/wait_for_xserverrc"
 
-from pylib.syslog_utils import info
+from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,warn_exp,debug,DEBUG
 from subprocess import TimeoutExpired,DEVNULL
 from time import time
 from os import execvp
 from pylib.xinit_utils import *
 
-cmdline =   [
+
+cmdline0 =   [
                 'sudo', 'nice', '-n-20', 'ionice', '-c2', '-n0',
                 'chrt', '-rr', '30', 'sudo', '-u',
-                'xserver', 'X', ':0',
-                '-quiet',
+                'root', 'X', ':0',
+            ]
+
+cmdline1 =  [
                 '-ardelay', '130',
                 '-arinterval', '50',
                 '-listen','inet',
-                '-iglx',
+                '+iglx',
                 '-depth', '24',
                 '-allowNonLocalXvidtune',
                 '-dpms',
@@ -31,6 +37,7 @@ def parse_args():
     a.add_argument('-v','--verbose',action='store_true')
     a.add_argument(dest='xserverargs',nargs='*')
     a.add_argument("-r","--restart",action='store_true',default=False)
+    a.add_argument( "--loglevel", type=int , default=WARN)
     global args
     args=a.parse_args()
     if args.debug:
@@ -46,7 +53,16 @@ def parse_args():
     else:
         stdout=DEVNULL
     global cmdline
-    cmdline+=args.xserverargs
+    cmdline = []
+    cmdline += cmdline0
+    if args.loglevel >= INFO:
+        cmdline.append('-verbose')
+    elif args.loglevel <= WARN:
+        cmdline.append('-quiet')
+    cmdline += cmdline1
+    cmdline += args.xserverargs
+    if args.loglevel >= INFO:
+        info("xserverrc called with args: '"+ str(args.xserverargs)+"'")
 
 ############
 ##  main  ##
