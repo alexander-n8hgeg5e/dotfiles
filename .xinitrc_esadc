@@ -1,67 +1,22 @@
-#!/bin/fish
+#!/usr/bin/env python3
+from pylib.screen_utils.env import parse_display_var
+from subprocess import check_call,Popen
 
-# set -x DISPLAY esadc:0
-# echo $DISPLAY
-#set cmdline_esadc "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :1 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
+display_host=parse_display_var().split(':')[0]
+cmds=[]
 
-#set cmdline_skyscraper "nice -n-20 ionice -c1 -n3 chrt -rr 30 X :1 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
+cmd = [ 'setup_x', display_host ]
+cmds.append(cmd)                                      
 
-set _hostname (hostname)
+cmd = ['setup_xrandr',display_host]
+cmds.append(cmd)
 
-function clean
-    ssh de killall redshift
-    ssh de killall conky
-    ssh de killall clipster
-    ssh de killall st
-    ssh de killall spectrwm
-    wm_conf_adj
-end
+cmd = ['rind','clipster', '-d']
+cmds.append(cmd)
 
-#function xserver_wait_prog
-#    st -t waitprog -e fish -C "function fish_title
-#	end
-#	echo This is xserver waiting shell. Exiting this shell will terminate xserver."
-#end
+for cmd in cmds:
+    check_call(cmd)
 
-#function xserver_start
-#    for i in esadc skyscraper
-#        set varname cmdline_$i
-#        if test $hostname = $i
-#            echo
-#            echo starting xserver on $i ...
-#            echo
-#            eval $$varname &
-#            echo starting spice viewer ..
-#            set -x DISPLAY :1
-#            eval spicy -h 127.0.0.1 -p 4300 -f &
-#        else
-#            echo
-#            echo starting xserver via ssh on $i ...
-#            echo
-#            ssh $i'_xserver' $$varname &
-#            echo starting spice viewer ..
-#            set -x DISPLAY :1
-#            ssh $i'_xserver'  'spicy -h esadc -p 4300 -f' & 
-#            set -x DISPLAY :1
-#            echo done $i
-#        end
-#    end
-#end
-#
-if test "$argv[1]" = c   #clean
-    clean
-end
+p=Popen(['spectrwm'])
+p.wait()
 
-env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 setup_x $_hostname 
-
-#xserver_start &
-pulseaudio -D &
-setup_xrandr
-setup_x
-#redshift -c ~/.redshift_esadc.conf &
-env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 clipster -d &
-screen_on_control &
-env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 st -e TM &
-env LD_PRELOAD=/usr/lib/libswmhack.so.0.0 sc -r &
-spectrwm
-#i3 -c "$HOME""/.config/i3/config_esadc:0"

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import sys
-#sys.path.insert(1,"/var/src/pylib")
+sys.path.insert(1,"/var/src/pylib")
 
 WAITFILE="/tmp/wait_for_xserverrc"
 
-from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,DEBUG,warn_exp,debug
-from subprocess import DEVNULL,CalledProcessError,call as subprocess_call
+from pylib.syslog_utils import warn,err,info,log,WARN,ERR,INFO,DEBUG,warn_exp,debug,format_exp
+from pylib.screen_utils.env import parse_display_var
+from subprocess import DEVNULL,CalledProcessError,call as subprocess_call,PIPE,STDOUT
 from pylib.syslog_utils.subprocess import check_output,check_call,call,Popen
 from time import time
 from hashlib import md5
@@ -18,6 +19,9 @@ from sys import modules
 #from pylib.du import dd
 from pylib.xinit_utils import *
 from socket import gethostname
+from os import set_blocking
+from pprint import pprint
+from sys import stderr,stdout
 
 
 def parse_args():
@@ -26,6 +30,8 @@ def parse_args():
     a.add_argument('-D','--debug',action='store_true',default=False)
     a.add_argument('-v','--verbose',action='store_true',default=False)
     a.add_argument("--keyev", action='store_true', help="use keyev, not synergy",default=True)
+    a.add_argument("-e","--stderr", action='store_true', help="print log also to stderr",default=True)
+    a.stderr=True
     global args
     args=a.parse_args()
     if args.debug:
@@ -37,21 +43,31 @@ def parse_args():
     #    stderr=DEVNULL
 
 def setup_keyboard(display):
+    #debug(f"func: setup_keyboard(\"{display}\")",log2stderr=True)
+    #__get_access()
+    setup_repeat_rate(display)
     try:
-        hostname = check_output(["hostname"],loglevel=WARN)
-        hostname=hostname.decode().strip()
+        xkbmap_file_path = environ['HOME']+"/.xkbmap_"+parse_display_var().split(':')[0]
     except Exception as e:
-        warn_exp(e)
-        err("ERROR: could not get hostname")
-        raise
-    xkbmap_file_path=environ['HOME']+"/.xkbmap_"+hostname
+        warn_exp(e,log2stderr=True)
     with open(xkbmap_file_path,'rb') as f:
         checksum = md5(f.read()).hexdigest()
     msg='setup keyboard for display='+display
     cmd=["xkbcomp", xkbmap_file_path, display ]
     call(cmd,msg=msg,loglevel=WARN)
-    check_call(['xset', 'r', 'rate', '130', '50'],env=environ.update({"DISPLAY":display}),loglevel=WARN)
+    #debug(f"func: setup_keyboard returning \"{checksum}\"",log2stderr=True)
     return checksum
+
+def setup_repeat_rate(display):
+    #debug(f"func: setup_repeat_rate(\"{display}\")",log2stderr=True)
+    # repeat rate setup
+
+    try:
+        check_call(['xset', 'r', 'rate', '130', '50'],env=env,loglevel=WARN)
+    except Exception as e:
+        warn_exp(e,log2stderr=True)
+        raise
+    #debug(f"func: exit setup_repeat_rate(\"{display}\")",log2stderr=True)
 
 def gen_countdown_code(timeout):
     countdown_code = \
@@ -74,38 +90,42 @@ def gen_countdown_code(timeout):
     countdown """+str(int(timeout))+""";"""
     return countdown_code
 
-def _start_sd_terminal(timeout=600):
+def _start_sd_terminal_v2(timeout=600):
     pid=""
     starttime=time()
+    cmd= [           
+                                'env', f"DISPLAY={TARGET_DISPLAY}",
+                                "rind", "st",
+                                #"rind", "st", "-ttmpinittermwin",
+                     #           "-f", '"Anonymous Pro:pixelsize=20:antialias=true:autohint=true"',
+                                '-e', 'bash', '-c','sleep 10'
+                               # '-e', 'sh', '-c', "'"+gen_countdown_code(30)+"'"
+         ]
+    print(' '.join(cmd))
     while not len(pid) > 0 or (time() - starttime) > timeout:
         pid = check_output  (
-                            [   
-                                "ssh", "xsky", "env", "DISPLAY=:0",
-                                "rind", "st", "-ttmpinittermwin",
-                                "-f", '"Anonymous Pro:pixelsize=20:antialias=true:autohint=true"',
-                                '-e', 'sh', '-c', "'"+gen_countdown_code(30)+"'"
-                            ],
+                            cmd,
                             loglevel=WARN,
                             )
         sleep(2)
     pid=pid.decode().strip()
-    info("started terminal pid="+pid)
+    info("started terminal pid="+pid,log2stderr=True)
     return int(pid)
 
-def start_sd_terminal(timeout=180):
+def start_sd_terminal_v2(timeout=180):
     info("starting self destructing terminal on xserver...")
     try:
         display_var_backup = environ['DISPLAY']
         environ.update({'DISPLAY':":0"})
-        pid = _start_sd_terminal(timeout=timeout)
-        info('waiting for terminal "'+str(pid)+'" ...')
+        pid = _start_sd_terminal_v2(timeout=timeout)
+        info('waiting for terminal "'+str(pid)+'" ...',log2stderr=True)
         
         count=0
-        while not call(['ssh', 'xsky', 'ps', '--no-headers', '-p', str(pid)],loglevel=WARN) == 0:
+        while not subprocess_call(['sudo','ps', '--no-headers', '-p', str(pid)]) == 0:
             sleep(1)
             count+=1
             if count in [1,2,3,5] or count%10==0:
-                pid = _start_sd_terminal(timeout=timeout)
+                pid = _start_sd_terminal_v2(timeout=timeout)
         debug("count="+str(count))
     finally:
         environ.update({'DISPLAY': display_var_backup })
@@ -113,19 +133,34 @@ def start_sd_terminal(timeout=180):
     info('terminal done')
 
 def setup_xrandr():
-    call([ 'xrandr', '--dpi', '90', '--output', 'HDMI-1', '--rotate', 'left', '--pos', '0x0', '--primary' ],loglevel=WARN)
-    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080' ],loglevel=WARN)
-    call([ 'xrandr', '--delmode', 'VGA-1', '1920x1080_'],stderr=DEVNULL,loglevel=WARN)
-    call([ 'xrandr', '--rmmode', '1920x1080_'],stderr=DEVNULL,loglevel=WARN)
+    #debug("enter setup xrandr",log2stderr=True)
+    env=environ.copy()
+    env['DISPLAY']=TARGET_DISPLAY
+    #__get_access()
+    check_call([ 'xrandr', '--dpi', '90', '--output', 'HDMI-1', '--rotate', 'left', '--pos', '0x0', '--primary' ],loglevel=WARN,env=env)
+    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080' ],loglevel=WARN,env=env)
+    call([ 'xrandr', '--delmode', 'VGA-1', '1920x1080_'],loglevel=WARN,env=env)
+    call([ 'xrandr', '--rmmode', '1920x1080_'],stderr=DEVNULL,loglevel=WARN,env=env)
     #xrandr --newmode 1920x1080_ 148.500 1920 2007 2052 2204 1080 1084 1089 1125 +hsync +vsync
-    call(
-            [ 'xrandr', '--newmode', '1920x1080_', '148.86399999999999010924',
-            '1920', '2007', '2052', '2204', '1080', '1084', '1089', '1125', '+hsync', '+vsync' 
-            ],
-            loglevel=WARN
+    #cmd=[ 'env',f'DISPLAY={TARGET_DISPLAY}','xrandr', '--newmode', '1920x1080_', '148.86399999999999010924',
+    #        '1920', '2007', '2052', '2204', '1080', '1084', '1089', '1125', '+hsync', '+vsync' 
+    #        ]
+    cmd=[ 'env',f'DISPLAY={TARGET_DISPLAY}','xrandr', '--newmode', '1920x1080_', '148.86399999999999010924',
+            '1920', '2007', '2052', '2204', '1080', '1084', '1089', '1125', '+hsync']
+    #print(' '.join(cmd))
+    call(cmd,
+            loglevel=WARN,log2stderr=True,
+            env=env,
         )
-    call([ 'xrandr', '--addmode', 'VGA-1', '1920x1080_' ],loglevel=WARN)
-    call([ 'xrandr', '--output', 'VGA-1', '--mode', '1920x1080_', '--rotate', 'left', '--pos', '768x0' ],loglevel=WARN)
+    #print('d8') 
+    cmd=[ 'env',f'DISPLAY={TARGET_DISPLAY}','xrandr', '--addmode', 'VGA-1', '1920x1080_' ]
+    #print(' '.join(cmd))
+    call(cmd,loglevel=WARN,log2stderr=True,env=env)
+    #print('d9')
+    check_call([ 'xrandr', '--output', 'VGA-1', '--rotate', 'left', '--pos', '768x0' ],loglevel=WARN,log2stderr=True,env=env)
+    #print('d10')
+
+    #debug("exit setup xrandr",log2stderr=True)
 
 def get_nodelist():
     with open("/etc/nodelist")  as f:
@@ -135,123 +170,175 @@ def get_nodelist():
         nodes.pop(nodes.index(""))
     return nodes
 
+def get_prepared_env():
+    # prepare env
+    env = environ.copy()
+    if 'XAUTHORITY' in env.keys():
+        warn(f'WARNING: XAUTHORITY set to \"{env["XAUTHORITY"]}\"')
+    env.update( { "DISPLAY": TARGET_DISPLAY } )
+    return env
+
+def get_access():
+    return
+    debug(f"enter get access",log2stderr=True)
+
+    cmds=[]
+    cmd=[ 'ssh', 'root@skyscraper', 'touch', '/run/xauth/xauth' ]
+    print(' '.join(cmd))
+    check_call(cmd, log2stderr=True,env=env)
+
+    cmd=[ 'ssh', 'root@skyscraper', 'env', f'DISPLAY={TARGET_DISPLAY}', 'xauth','-f','/run/xauth/xauth', 'generate', f'{TARGET_DISPLAY}', '.','trusted','timeout','3600' ]
+    print(' '.join(cmd))
+    check_call(cmd, log2stderr=True,env=env)
+    cmd0 = [ 'ssh', 'root@skyscraper', 'env',  f'DISPLAY={TARGET_DISPLAY}', 'xauth','-f','/run/xauth/xauth', 'nextract', '-',   f'{TARGET_DISPLAY}' ]
+    print(' '.join(cmd0))
+    p0 = Popen( cmd0, stdout=PIPE, env=env, log2stderr=True,cwd="/")
+    print('d08')
+    cmd1 = [ 'env', f'DISPLAY={HOME_DISPLAY}', 'xauth','-f','/run/xauth/xauth', 'nmerge', '-' ]
+    print(' '.join(cmd1))
+    p1 = Popen(cmd1,stdin=PIPE,log2stderr=True,cwd="/")
+    data=p0.stdout.read()
+    p1.stdin.write(data)
+    p1.stdin.close()
+    p0.wait()
+    print('d09')
+    p1.wait()
+    start_sd_terminal_v2()
+    print('d010')
+
+    def check():
+        return_vals=[]
+        def a(*z, **zz):
+            return_vals.append(*z, **zz)
+        a( 0 == call( ['xrandr', '--listactivemonitors'],env=env ))
+        a( 0 == call( ['xset', 'r', 'rate', '130', '50'], env=env))
+        return all(return_vals)
+
+    t0=time()
+    WAIT_INTERVAL = 1
+    TIMEOUT = 4
+    def just_befor_timeout():
+        return time() - t0 > TIMEOUT - WAIT_INTERVAL
+    done=check
+    while not done() and not just_befor_timeout():
+        sleep(WAIT_INTERVAL)
+    sleep(WAIT_INTERVAL)
+    done=done()
+    print(f'done:{done}',file=stderr)
+    if not done:
+        raise Exception(f"ERROR: Timeout of {TIMEOUT}[s] reached.")
+    debug(f"exit get access",log2stderr=True)
+
+def check_env(env):
+    if not env['DISPLAY']== HOME_DISPLAY:
+        print(env['DISPLAY'])
+        raise Exception('ERROR: debug 0')
+    if 'XAUTHORITY' in env.keys() and not env['XAUTHORITY']== '/run/xauth/xauth':
+        print(env['XAUTHORITY'])
+        raise Exception('ERROR: debug 1')
+
+def check_target_env(env):
+    if not env['DISPLAY']== TARGET_DISPLAY:
+        print(env['DISPLAY'])
+        raise Exception('ERROR: debug 0')
+    if 'XAUTHORITY' in env.keys() and not env['XAUTHORITY']== '/run/xauth/xauth':
+        print(env['XAUTHORITY'])
+        raise Exception('ERROR: debug 1')
+        
+        
 if __name__=='__main__':
-    info("####################################")
-    info("##  xinit xinitrc skyscraper ...  ##")
-    info("####################################")
-    master_display=environ['DISPLAY']
-    debug("master display = \"{}\"".format(master_display))
+    info("####################################",log2stderr=True)
+    info("##  xinit xinitrc skyscraper ...  ##",log2stderr=True)
+    info("####################################",log2stderr=True)
+    HOME_DISPLAY   = environ['DISPLAY']
+    TARGET_DISPLAY = 'skyscraper:0'
+    debug("home display = \"{}\"".format(HOME_DISPLAY))
     popens=[]
+    target_env = get_prepared_env()
+    check_target_env(target_env)
+    env=environ
+    check_env(env)
+
+    # xinit does not wait for xserver
+    # need to wait here
+    wait=True
+    while wait:
+        with open(WAITFILE) as f:
+            st_mode=stat(WAITFILE).st_mode
+            if st_mode & 0o0033 == 0:
+                # readonly for all but user
+                wait,starttime=eval(f.read())
+            else:
+                raise Exception("ERROR: Wrong mode of waitfile \""+WAITFILE+"\", umask while calling xinit probably wrong.")
+        sleep(0.2)
+
+    parse_args()
+
+    ########################
+    ##  first get access  ##
+    ########################
+    #access_popen=Popen(['st'],env=target_env,cwd="/")
+    access_popen=Popen(['st','-e','bash','-c',gen_countdown_code(30)],env=target_env,cwd="/")
+    
     try:
-
-        # xinit does not wait for xserver
-        # need to wait here
-
-        wait=True
-        while wait:
-            with open(WAITFILE) as f:
-                st_mode=stat(WAITFILE).st_mode
-                if st_mode & 0o0033 == 0:
-                    # readonly for all but user
-                    wait,starttime=eval(f.read())
-                else:
-                    raise Exception("ERROR: Wrong mode of waitfile \""+WAITFILE+"\", umask while calling xinit probably wrong.")
-            sleep(0.2)
-
-        parse_args()
-        
-        if not args.keyev:
-            try:
-                check_call(["synergy_skyscraper", "stop"],msg='stopping synergy',loglevel=WARN)
-            except Exception as e:
-                warn_exp(e)
-            try:
-                check_call(["synergy_skyscraper", "starts"],msg='starting synergy server',loglevel=WARN)
-            except Exception as e:
-                warn_exp(e)
-        try: 
-            checksum_0=setup_keyboard(environ['DISPLAY'])
-        except CalledProcessError as e:
-            ee=XinitError(e.msg)
-            ee.log()
-
-        environ.update({'DISPLAY':"skyscraper:0"})
-
-        ########################
-        ##  first get access  ##
-        ########################
-        start_sd_terminal()
-        ownnode=gethostname()
-        check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+ownnode],msg='setup xhost permission '+ownnode,loglevel=WARN)
-        for node in get_nodelist():
-            check_call(['ssh', 'xsky', 'env', 'DISPLAY=:0', 'xhost', '+'+node],msg='setup xhost permission '+node,loglevel=WARN)
-        ####################################################################
-
-
-        try:
-            environ.update({'DISPLAY':"skyscraper:0"})
-            checksum_1=setup_keyboard('skyscraper:0')
-            if not checksum_0 == checksum_1:
-                warn('WARNING: "xkb" keyboard setup probably incorrect !')
-
-        except CalledProcessError as e:
-            ee=XinitError(str(e))
-            ee.log()
-        
-        # set up stuff
-        #xrdb -merge ~/.Xresources
-        
-        call(['xset', '+fp', expandvars('$HOME/.local/share/fonts') ], msg='adding fontdir ... ' ,loglevel=WARN)
-
-        setup_xrandr() 
-
-        call([ 'xset', 'dpms', '600', '1200', '3600' ],msg='dpms setup',loglevel=WARN)
-        #xcalib -a -c ;xcalib -a -blue 1 1 85 -green 1 1 94  -red 1 1 100
-        
-        # start stuff
-        #info('starting pulseaudio ...')
-        #popens.append(Popen(['pulseaudio' ,'-D']))
-        #redshift -c ~/.redshift_skyscraper.conf &
-        
-        #popens.append(Popen([ 'clipster', '-d' ],msg='starting clipster ...'))
-        
-        #st -f $font &
-        
-        #sc -r &
-        if not args.keyev:
-            raise Exception("synergy is not supported any more")
-        else:
-            try:
-                display_var_backup=environ['DISPLAY']
-                environ.update({'DISPLAY':master_display})
-                p=Popen([ 'keyev' ],msg='starting keyev',env=environ)
-                popens.append(p)
-                environ['DISPLAY']=display_var_backup
-            except Exception as e:
-                warn_exp(e)
-            try:
-                p=Popen([ 'mouseev' ],msg='starting mouseev')
-                popens.append(p)
-            except Exception as e:
-                warn_exp(e)
-        try: 
-            p=Popen([ 'i3', '-c', expandvars('${HOME}/.config/i3/config_skyscraper:0') ],msg='starting i3 wm')
-            info("time = "+str(round(time()-starttime,2)))
-            p.wait()
-        except Exception as e:
-            retcode=p.poll()
-            warn_exp(e)
-            warn('i3 terminated, exitcode="'+str(p.poll())+'"')
-            raise
+        checksum_0=setup_keyboard(HOME_DISPLAY)
     except Exception as e:
-        warn_exp(e,with_traceback=True)
+        ee = XinitError(str(e))
+        ee.log()
+
+
+
+    info('2nd keyboard setup ...',log2stderr=True)
+    try:
+        checksum_1=setup_keyboard(TARGET_DISPLAY)
+        if not checksum_0 == checksum_1:
+            warn('WARNING: "xkb" keyboard setup probably incorrect !',log2stderr=True)
+    except CalledProcessError as e:
+        ee=XinitError(str(e))
+        ee.log()
+    # set up stuff
+    #xrdb -merge ~/.Xresources
+    
+    call(['xset', '+fp', expandvars('$HOME/.local/share/fonts') ], msg='adding fontdir ... ' ,loglevel=WARN,env=env)
+
+    setup_xrandr() 
+
+    call([ 'xset', 'dpms', '600', '1200', '3600' ],msg='dpms setup',loglevel=WARN,env=env)
+    #xcalib -a -c ;xcalib -a -blue 1 1 85 -green 1 1 94  -red 1 1 100
+    
+    # start stuff
+    #info('starting pulseaudio ...')
+    #popens.append(Popen(['pulseaudio' ,'-D'],cwd="/"))
+    #redshift -c ~/.redshift_skyscraper.conf &
+    
+    popens.append(Popen([ 'clipster', '-d' ],msg='starting clipster ...',env=target_env,cwd="/"))
+    
+    #st -f $font &
+    
+    #sc -r &
+
+    check_env(env)
+    p=Popen([ 'keyev' ],msg='starting keyev',env=env,cwd="/")
+    popens.append(p)
+    p=Popen([ 'mouseev' ],msg='starting mouseev',env=env,cwd="/")
+    popens.append(p)
+    check_target_env(target_env)
+    #Popen(['ssh','root@skyscraper','ps','-C','X'],log2stderr=True,stdout=stdout,stderr=stderr,env=target_env,cwd="/").wait
+    #p=Popen([ 'st' ],msg='starting i3 wm',log2stderr=True,env=target_env,stdout=stdout,stderr=stderr,cwd="/")
+    p=Popen([ 'i3', '-c', expandvars('${HOME}/.config/i3/config_skyscraper:0') ],msg='starting i3 wm',log2stderr=True,env=target_env,stdout=stdout,stderr=stderr,cwd="/")
+    info("time = "+str(round(time()-starttime,2)),log2stderr=True)
+    try:
+        sleep(10)
+        access_popen.terminate()
+        p.wait()
     finally:
-        try:
-            if not args.keyev:
-                call([ 'wm_conf_adj', 'off'],msg="adjusting config for state: xserver_on_skyscraper = disabled",loglevel=WARN)
-        except Exception as e:
-            subprocess_call([ 'wm_conf_adj', 'off'],loglevel=WARN)
-            warn_exp(e,with_traceback=True)
+        for p in popens:
+            print(f"terminating {p}")
+            p.terminate()
+        sleep(2)
+        for p in popens:
+            print(f"sending kill signal {p}")
+            p.kill()
 
     
     # vim: set foldlevel=0 foldnestmax=2 foldmethod=indent :
