@@ -8,7 +8,6 @@
 exec "bash ${HOME}/.config/i3/gen_conf.bash"
 
 font pango:monospace 8
-layout tabbed
 workspace_layout tabbed
 focus_on_window_activation none
 
