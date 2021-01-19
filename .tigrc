@@ -5,6 +5,7 @@ set main-view-date = custom
 set main-view-date-format = "%y%m%d|%H%M"
 set main-view-author-display = abbreviated
 set main-view-author-width = 4
+#set commit-order = topo
 set reference-format = head, branch <tag> remote {tracked-remote}
 set tab-size = 4
 set commit-order = auto
