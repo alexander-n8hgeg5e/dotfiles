@@ -5,7 +5,7 @@ set main-view-date = custom
 set main-view-date-format = "%y%m%d|%H%M"
 set main-view-author-display = abbreviated
 set main-view-author-width = 4
-set reference-format = head, branch <tag> remote {>tracked-remote<}
+set reference-format = head, branch <tag> remote {tracked-remote}
 set tab-size = 4
 set commit-order = auto
 set git-colors = no
@@ -25,6 +25,7 @@ color author color4 default
 color main-head color1 default
 color main-ref color2 default
 color main-remote color6 default
+color main-tracked color6 default
 
 
 bind main e move-up
