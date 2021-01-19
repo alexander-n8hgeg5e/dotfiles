@@ -1,16 +1,36 @@
+
+set split-view-width = 70%
+set main-view-id-display = yes
+set main-view-date = custom
+set main-view-date-format = "%y%m%d|%H%M"
+set main-view-author-display = abbreviated
+set main-view-author-width = 4
+set reference-format = head, branch <tag> remote {>tracked-remote<}
+set tab-size = 4
+set commit-order = auto
+set git-colors = no
+
+# general
+color cursor color0 color3
+color header color0 color3
+color title-focus color0 color2
+color title-blur color4 color8
+
+# columns
+color id color4 default
+color date color2 default
+color author color4 default
+
+# ref colors
+color main-head color1 default
+color main-ref color2 default
+color main-remote color6 default
+
+
 bind main e move-up
 bind main d move-down
 bind diff i scroll-line-up
 bind diff k scroll-line-down
-set split-view-width = 70%
-set main-view-id-display = yes
-set main-view-date = custom
-set main-view-date-format = "%y%m%d %H:%M"
-set main-view-author-display = abbreviated
-set main-view-author-width = 4
-set reference-format = [head] (branch) <tag> >>remote>> {>tracked-remote<}
-set tab-size = 4
-set commit-order = topo
 
 bind generic I @sh -c "echo -n %(commit) | xclip -selection c"
 
