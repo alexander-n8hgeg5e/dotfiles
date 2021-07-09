@@ -20,3 +20,17 @@ for cmd in cmds:
 p=Popen(['spectrwm'])
 p.wait()
 
+set -u LD_PRELOAD
+setup_x
+
+#xserver_start &
+pulseaudio -D &
+setup_xrandr
+setup_x
+#redshift -c ~/.redshift_esadc.conf &
+clipster -d &
+screen_on_control &
+st -e TM &
+sc -r &
+spectrwm
+#i3 -c "$HOME""/.config/i3/config_esadc:0"
