@@ -1,4 +1,6 @@
-sda sda*
-sdb sdb*
-sdc sdc*
-sdd sdd*
+#sda sda*
+#sdb sdb*
+#sdc sdc*
+#sdd sdd*
+nbd0 nbd0
+nbd1 nbd1
