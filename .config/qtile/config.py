@@ -30,6 +30,152 @@ from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
+from libqtile.log_utils import logger
+from math import inf,sqrt,atan
+from pprint import pformat
+
+def center_of_screen(screen):
+    x,y=screen.x,screen.y
+    w,h=screen.width,screen.height
+    return x+w/2,y+h/2
+
+def center_of_window(w):
+    x,y=w['x'],w['y']
+    w,h=w['width'],w['height']
+    return x+w/2,y+h/2
+
+def direction_to_screen_id(qtile,direction):
+    screens = qtile.screens.copy()
+    positions = []
+    for i in range(len(screens)):
+        screen=screens[i]
+        positions.append(center_of_screen(screen))
+        if screen.index == qtile.current_screen.index:
+            current_screen = screen
+            current_screen_list_index = i
+    lowest_distance = inf
+    lowest_distance_index = None
+    own_pos=positions[current_screen_list_index]
+    for i in range(len(positions)):
+        p=positions[i]
+        if direction in ('right','down'):
+            if p[0] > own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
+                d = distance_of_points(own_pos,p)
+                if d < lowest_distance:
+                    lowest_distance=d
+                    lowest_distance_index = i
+            else:
+                p = None
+        elif direction in ('left','up'):
+            if p[0] < own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
+                d = distance_of_points(own_pos,p)
+                if d < lowest_distance:
+                    lowest_distance=d
+                    lowest_distance_index = i
+            else:
+                p = None
+    if not lowest_distance_index is None:
+        return screens[lowest_distance_index].index
+
+def val_in_interval(v,interval):
+    return interval[0] < v < interval[1]
+
+def pos_in_2D_interval(pos,interval):
+    return val_in_interval(pos[0],interval[0]) and val_in_interval(pos[1],interval[1])
+
+
+def direction_to_win_id_on_current_screen(qtile,direction):
+    windows = qtile.cmd_windows()
+    positions = []
+    for i in range(len(windows)):
+        window=windows[i]
+        positions.append(center_of_window(window))
+        if window["id"] == qtile.current_window.info()['id']:
+            current_window = window
+            current_window_list_index = i
+    lowest_distance = inf
+    lowest_distance_index = None
+    own_pos=positions[current_window_list_index]
+    interval_x = qtile.current_screen.x,qtile.current_screen.x+qtile.current_screen.width
+    interval_y = qtile.current_screen.y,qtile.current_screen.y+qtile.current_screen.height
+    for i in range(len(positions)):
+        p=positions[i]
+        if pos_in_2D_interval(p,(interval_x,interval_y)):
+            if direction in ('right','down'):
+                if p[0] > own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
+                    d = distance_of_points(own_pos,p)
+                    if d < lowest_distance:
+                        lowest_distance=d
+                        lowest_distance_index = i
+                else:
+                    p = None
+            elif direction in ('left','up'):
+                if p[0] < own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
+                    d = distance_of_points(own_pos,p)
+                    if d < lowest_distance:
+                        lowest_distance=d
+                        lowest_distance_index = i
+                else:
+                    p = None
+        else:
+            p = None
+    if not lowest_distance_index is None:
+        return windows[lowest_distance_index]['id']
+
+def point_is_in_direction_from_point(p0,direction,p1):
+    p = (p1[0]-p0[0], p1[1]-p0[1])
+    if direction in ('left', 'right'):
+        return (p[1]/p[0])**2 <= 1
+    elif direction in ('up', 'down'):
+        return (p[1]/p[0])**2 >= 1
+
+def distance_of_points(p0,p1):
+    p = (p1[0]-p0[0], p1[1]-p0[1])
+    return sqrt(p[0]**2+p[1]**2)
+
+
+
+
+def move_win(qtile,direction):
+    sid = direction_to_screen_id(qtile,direction)
+    if not sid is None:
+        group = qtile.screens[sid].group.name
+        qtile.current_window.togroup(group)
+    else:
+        logger.log(99,"no screen in this direction")
+
+def go(qtile,direction):
+    if qtile.current_layout.name == "treetab":
+        if direction == "up":
+            qtile.current_layout.cmd_up()
+        elif direction == "down":
+            qtile.current_layout.cmd_down()
+        else:
+            go_screen(qtile,direction)
+    else:
+        wid = direction_to_win_id_on_current_screen(qtile,direction)
+        if not wid is None:
+            if direction == "right":
+                qtile.current_layout.cmd_right()
+            elif direction == "left":
+                qtile.current_layout.cmd_left()
+            elif direction == "up":
+                qtile.current_layout.cmd_up()
+            elif direction == "down":
+                qtile.current_layout.cmd_down()
+        else:
+            go_screen(qtile,direction)
+
+def go_screen(qtile,direction):
+    sid = direction_to_screen_id(qtile,direction)
+    if not sid is None:
+        group = qtile.screens[sid].group.name
+        #msg=pformat([qtile,dir(qtile),type(qtile),qtile.warp_to_screen.__doc__])
+        #logger.log(99,msg)
+        qtile.cmd_to_screen(sid)
+    else:
+        logger.log(99,"no screen in this direction")
+
 
 CA  = ["mod1", "control"]
 CAS = CA + ["shift"]
@@ -37,33 +183,17 @@ terminal = guess_terminal()
 
 keys = [
     # Switch between windows
-    Key(CA, "s", lazy.layout.left(), desc="Move focus to left"),
-    Key(CA, "f", lazy.layout.right(), desc="Move focus to right"),
-    Key(CA, "d", lazy.layout.down(), desc="Move focus down"),
-    Key(CA, "e", lazy.layout.up(), desc="Move focus up"),
-    Key(CA, "Tab", lazy.layout.next(),
-        desc="Move window focus to other window"),
+    Key(CA, "Tab", lazy.layout.next(), desc="Move window focus to other window"),
 
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    Key(CA , "j", lazy.layout.shuffle_left(),
-        desc="Move window to the left"),
-    Key(CA , "l", lazy.layout.shuffle_right(),
-        desc="Move window to the right"),
-    Key(CA , "k", lazy.layout.shuffle_down(),
-        desc="Move window down"),
-    Key(CA , "i", lazy.layout.shuffle_up(), desc="Move window up"),
+    Key(CA , "s", lazy.function(go,"left")),
+    Key(CA , "f", lazy.function(go,"right")),
+    Key(CA , "d", lazy.function(go,"down")),
+    Key(CA , "e", lazy.function(go,"up")),
 
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    #Key(CA , "h", lazy.layout.grow_left(),
-    #    desc="Grow window to the left"),
-    #Key(CA , "l", lazy.layout.grow_right(),
-    #    desc="Grow window to the right"),
-    #Key(CA , "j", lazy.layout.grow_down(),
-    #    desc="Grow window down"),
-    #Key(CA , "k", lazy.layout.grow_up(), desc="Grow window up"),
-    #Key(CA, "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    Key(CA, "j", lazy.function(move_win,"left")),
+    Key(CA, "l", lazy.function(move_win,"right")),
+    Key(CA, "k", lazy.function(move_win,"down")),
+    Key(CA, "i", lazy.function(move_win,"up")),
 
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
@@ -74,8 +204,9 @@ keys = [
     Key(CA, "Return", lazy.spawn(terminal), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
-    Key(CAS, "Tab", lazy.next_layout(), desc="Toggle between layouts"),
+    Key(CA, "space", lazy.next_layout(), desc="Toggle between layouts"),
     Key(CAS, "q", lazy.window.kill(), desc="Kill focused window"),
+    Key(CA, "w", lazy.window.toggle_floating()),
 
     Key(CAS, "r", lazy.restart(), desc="Restart Qtile"),
 ]
@@ -103,12 +234,12 @@ layouts = [
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
-    # layout.Matrix(),
+    layout.Matrix(),
     # layout.MonadTall(),
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
-    # layout.TreeTab(),
+    layout.TreeTab(),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
@@ -120,8 +251,12 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-screens = [
+fake_screens = [
     Screen(
+        x=0,
+        y=400,
+        width=1366,
+        height=768,
         bottom=bar.Bar(
             [
                 widget.CurrentLayout(),
@@ -142,6 +277,12 @@ screens = [
             ],
             24,
         ),
+    ),
+    Screen(
+        x=1366,
+        y=0,
+        width=1920,
+        height=2160,
     ),
 ]
 
@@ -172,13 +313,3 @@ floating_layout = layout.Floating(float_rules=[
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
-
-# XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
-# string besides java UI toolkits; you can see several discussions on the
-# mailing lists, GitHub issues, and other WM documentation that suggest setting
-# this string if your java app doesn't work correctly. We may as well just lie
-# and say that we're a working one by default.
-#
-# We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
-# java that happens to be on java's whitelist.
-wmname = "LG3D"
