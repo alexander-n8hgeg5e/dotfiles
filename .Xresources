@@ -1,3 +1,5 @@
+Xcursor.theme: a
+Xft.dpi: 80
 XTerm*FaceName: xft:Anonymous Pro:autohint=true:antialias=true
 XTerm*font1: xft:Anonymous Pro
 XTerm*font2: xft:Anonymous Pro
@@ -12,7 +14,6 @@ XTerm*faceSize4: 11
 XTerm*faceSize5: 12
 XTerm*faceSize6: 14
 XTerm*faceSize: 9
-Xft.dpi: 94
 XTerm*useClipping: false
 XTerm*OmitTranslation: fullscreen,scroll-lock,shift-fonts,wheel-mouse,default
 XTerm*Utf8Fonts: always
@@ -43,4 +44,3 @@ xclock*minuteColor: blue
 xlcock*secondColor: blue
 xclock*majorColor: yellow
 xclock*minorColor: blue
-Xcursor.theme: a

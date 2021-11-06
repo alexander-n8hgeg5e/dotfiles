@@ -83,16 +83,18 @@ def val_in_interval(v,interval):
 def pos_in_2D_interval(pos,interval):
     return val_in_interval(pos[0],interval[0]) and val_in_interval(pos[1],interval[1])
 
-
 def direction_to_win_id_on_current_screen(qtile,direction):
     windows = qtile.cmd_windows()
     positions = []
     for i in range(len(windows)):
         window=windows[i]
         positions.append(center_of_window(window))
-        if window["id"] == qtile.current_window.info()['id']:
-            current_window = window
-            current_window_list_index = i
+        try:
+            if window["id"] == qtile.current_window.info()['id']:
+                current_window = window
+                current_window_list_index = i
+        except AttributeError:
+            return None
     lowest_distance = inf
     lowest_distance_index = None
     own_pos=positions[current_window_list_index]
@@ -133,16 +135,18 @@ def distance_of_points(p0,p1):
     p = (p1[0]-p0[0], p1[1]-p0[1])
     return sqrt(p[0]**2+p[1]**2)
 
-
-
-
 def move_win(qtile,direction):
     sid = direction_to_screen_id(qtile,direction)
     if not sid is None:
         group = qtile.screens[sid].group.name
         qtile.current_window.togroup(group)
-    else:
-        logger.log(99,"no screen in this direction")
+    elif qtile.current_layout.name == "verticaltile":
+        if direction == "up":
+            qtile.current_layout.cmd_shuffle_up()
+        elif direction == "down":
+            qtile.current_layout.cmd_shuffle_down()
+   # else:
+   #     logger.log(99,"no screen in this direction")
 
 def go(qtile,direction):
     if qtile.current_layout.name == "treetab":
@@ -152,7 +156,17 @@ def go(qtile,direction):
             qtile.current_layout.cmd_down()
         else:
             go_screen(qtile,direction)
+    elif qtile.current_layout.name == "verticaltile":
+        # somehow the wid thing below does not work
+        # TODO: fix the wid thing to work and remove this elif section
+        if direction == "up":
+            qtile.current_layout.cmd_up()
+        elif direction == "down":
+            qtile.current_layout.cmd_down()
+        else:
+            go_screen(qtile,direction)
     else:
+        logger.log(99,"else")
         wid = direction_to_win_id_on_current_screen(qtile,direction)
         if not wid is None:
             if direction == "right":
@@ -205,7 +219,7 @@ keys = [
 
     # Toggle between different layouts as defined below
     Key(CA, "space", lazy.next_layout(), desc="Toggle between layouts"),
-    Key(CAS, "q", lazy.window.kill(), desc="Kill focused window"),
+    Key(CA, "q", lazy.window.kill(), desc="Kill focused window"),
     Key(CA, "w", lazy.window.toggle_floating()),
 
     Key(CAS, "r", lazy.restart(), desc="Restart Qtile"),
@@ -233,14 +247,14 @@ layouts = [
     layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
-    # layout.Bsp(),
-    layout.Matrix(),
-    # layout.MonadTall(),
-    # layout.MonadWide(),
-    # layout.RatioTile(),
+    layout.Bsp(),
+    #layout.Matrix(),
+    #layout.MonadTall(),
+    #layout.MonadWide(),
+    layout.RatioTile(),
     # layout.Tile(),
     layout.TreeTab(),
-    # layout.VerticalTile(),
+    layout.VerticalTile(),
     # layout.Zoomy(),
 ]
 
@@ -254,35 +268,35 @@ extension_defaults = widget_defaults.copy()
 fake_screens = [
     Screen(
         x=0,
-        y=400,
+        y=156,
         width=1366,
         height=768,
-        bottom=bar.Bar(
-            [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        'launch': ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
-                ),
-                widget.TextBox("my config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
-                widget.Systray(),
-                widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
-                widget.QuickExit(),
-            ],
-            24,
-        ),
+    #    bottom=bar.Bar(
+    #        [
+    #            widget.CurrentLayout(),
+    #            widget.GroupBox(),
+    #            widget.Prompt(),
+    #            widget.WindowName(),
+    #            widget.Chord(
+    #                chords_colors={
+    #                    'launch': ("#ff0000", "#ffffff"),
+    #                },
+    #                name_transform=lambda name: name.upper(),
+    #            ),
+    #            widget.TextBox("my config", name="default"),
+    #            widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+    #            widget.Systray(),
+    #            widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
+    #            widget.QuickExit(),
+    #        ],
+    #        24,
+    #    ),
     ),
     Screen(
         x=1366,
         y=0,
-        width=1920,
-        height=2160,
+        width=960,
+        height=1080,
     ),
 ]
 
@@ -298,7 +312,7 @@ mouse = [
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: List
 main = None  # WARNING: this is deprecated and will be removed soon
-follow_mouse_focus = True
+follow_mouse_focus = False
 bring_front_click = False
 cursor_warp = False
 floating_layout = layout.Floating(float_rules=[
