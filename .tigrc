@@ -1,8 +1,11 @@
-
+bind main e move-up
+bind main d move-down
+bind diff i scroll-line-up
+bind diff k scroll-line-down
 set split-view-width = 70%
 set main-view-id-display = yes
 set main-view-date = custom
-set main-view-date-format = "%y%m%d|%H%M"
+set main-view-date-format = "%y%m%d %H:%M"
 set main-view-author-display = abbreviated
 set main-view-author-width = 4
 #set commit-order = topo
@@ -36,8 +39,10 @@ bind diff k scroll-line-down
 
 bind generic I @sh -c "echo -n %(commit) | xclip -selection c"
 
-bind generic 4 :toggle split-view-width +10%
-bind generic 6 :toggle split-view-width -10%
+bind generic 4 :toggle split-view-width +5%
+bind generic 6 :toggle split-view-width -5%
+bind generic 2 :toggle split-view-height +5%
+bind generic 5 :toggle split-view-height -5%
 
 # View switching
 bind generic       m   view-main    #  Show  main view
@@ -64,7 +69,7 @@ bind generic     u    back                # Go back to the previous view state
 #bind generic         parent              # Move to parent
 #bind generic         view-next           # Move focus to the next view
 bind generic    r     refresh             # Reload and refresh view
-bind generic   2      maximize            # Maximize the current view
+#bind generic   5      maximize            # Maximize the current view
 bind generic   q      view-close          # Close the current view
 bind generic   ,      view-close-no-quit  # Close the current view without quitting
 bind generic   s      view-close-no-quit  # Close the current view without quitting
