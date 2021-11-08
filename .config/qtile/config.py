@@ -219,7 +219,7 @@ keys = [
 
     # Toggle between different layouts as defined below
     Key(CA, "space", lazy.next_layout(), desc="Toggle between layouts"),
-    Key(CA, "q", lazy.window.kill(), desc="Kill focused window"),
+    Key(CA, "z", lazy.window.kill(), desc="Kill focused window"),
     Key(CA, "w", lazy.window.toggle_floating()),
 
     Key(CAS, "r", lazy.restart(), desc="Restart Qtile"),
