@@ -136,17 +136,22 @@ def distance_of_points(p0,p1):
     return sqrt(p[0]**2+p[1]**2)
 
 def move_win(qtile,direction):
-    sid = direction_to_screen_id(qtile,direction)
-    if not sid is None:
-        group = qtile.screens[sid].group.name
-        qtile.current_window.togroup(group)
+    if len(qtile.screens) > 1:
+        sid = direction_to_screen_id(qtile,direction)
+        if not sid is None:
+            group = qtile.screens[sid].group.name
+            qtile.current_window.togroup(group)
+            return
     elif qtile.current_layout.name == "verticaltile":
         if direction == "up":
             qtile.current_layout.cmd_shuffle_up()
+            return
         elif direction == "down":
             qtile.current_layout.cmd_shuffle_down()
-   # else:
-   #     logger.log(99,"no screen in this direction")
+            return
+    getattr(qtile.current_layout ,'cmd_move_'+direction)()
+    #else:
+    #    logger.log(99,"no screen in this direction")
 
 def go(qtile,direction):
     if qtile.current_layout.name == "treetab":
@@ -243,18 +248,38 @@ for i in groups:
     ])
 
 layouts = [
-    layout.Columns(border_focus_stack='#d75f5f'),
+    #layout.Columns(border_focus_stack='#d75f5f'),
     layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
-    layout.Bsp(),
+    #layout.Bsp(),
     #layout.Matrix(),
     #layout.MonadTall(),
     #layout.MonadWide(),
-    layout.RatioTile(),
+    #layout.RatioTile(),
     # layout.Tile(),
-    layout.TreeTab(),
-    layout.VerticalTile(),
+    layout.TreeTab  (
+                    font="Anonymous Pro",
+                    fontsize=40,
+                    padding_left=0,
+                    margin_left=0,
+                    previous_on_rm=True,
+                    panel_width=400,
+                    border_width=0,
+                    sections=[''],
+                    section_top=0,
+                    section_bottom=0,
+                    section_fontsize=0,
+                    section_left=0,
+                    section_padding=0,
+                    inactive_fg="ffffff",
+                    inactive_bg="000000",
+                    active_fg="ffffff",
+                    active_bg="008800",
+                    urgent_fg="ff0000",
+                    urgent_bg="000000",
+                    ),
+    #layout.VerticalTile(),
     # layout.Zoomy(),
 ]
 
@@ -315,15 +340,15 @@ main = None  # WARNING: this is deprecated and will be removed soon
 follow_mouse_focus = False
 bring_front_click = False
 cursor_warp = False
-floating_layout = layout.Floating(float_rules=[
-    # Run the utility of `xprop` to see the wm class and name of an X client.
-    *layout.Floating.default_float_rules,
-    Match(wm_class='confirmreset'),  # gitk
-    Match(wm_class='makebranch'),  # gitk
-    Match(wm_class='maketag'),  # gitk
-    Match(wm_class='ssh-askpass'),  # ssh-askpass
-    Match(title='branchdialog'),  # gitk
-    Match(title='pinentry'),  # GPG key password entry
-])
+#floating_layout = layout.Floating(float_rules=[
+#    # Run the utility of `xprop` to see the wm class and name of an X client.
+#    *layout.Floating.default_float_rules,
+#    Match(wm_class='confirmreset'),  # gitk
+#    Match(wm_class='makebranch'),  # gitk
+#    Match(wm_class='maketag'),  # gitk
+#    Match(wm_class='ssh-askpass'),  # ssh-askpass
+#    Match(title='branchdialog'),  # gitk
+#    Match(title='pinentry'),  # GPG key password entry
+#])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
