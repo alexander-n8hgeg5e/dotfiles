@@ -143,12 +143,18 @@ def move_win(qtile,direction):
             group = qtile.screens[sid].group.name
             qtile.current_window.togroup(group)
             return
-    elif qtile.current_layout.name == "verticaltile":
+    if qtile.current_layout.name in ("verticaltile","monadtall"):
         if direction == "up":
             qtile.current_layout.cmd_shuffle_up()
             return
         elif direction == "down":
             qtile.current_layout.cmd_shuffle_down()
+            return
+        if direction == "left":
+            qtile.current_layout.cmd_shuffle_left()
+            return
+        elif direction == "right":
+            qtile.current_layout.cmd_shuffle_right()
             return
     getattr(qtile.current_layout ,'cmd_move_'+direction)()
     #else:
@@ -280,7 +286,7 @@ layouts = [
                     urgent_fg="ff0000",
                     urgent_bg="000000",
                     ),
-    #layout.VerticalTile(),
+    layout.VerticalTile(),
     # layout.Zoomy(),
 ]
 
