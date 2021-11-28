@@ -33,6 +33,7 @@ from libqtile.utils import guess_terminal
 from libqtile.log_utils import logger
 from math import inf,sqrt,atan
 from pprint import pformat
+from socket import gethostname
 
 def center_of_screen(screen):
     x,y=screen.x,screen.y
@@ -260,11 +261,11 @@ layouts = [
     # layout.Tile(),
     layout.TreeTab  (
                     font="Anonymous Pro",
-                    fontsize=40,
+                    fontsize=( 40 if gethostname() == "lati5" else 20 ),
                     padding_left=0,
                     margin_left=0,
                     previous_on_rm=True,
-                    panel_width=400,
+                    panel_width= ( 400 if gethostname() == "lati5" else 250 ),
                     border_width=0,
                     sections=[''],
                     section_top=0,
