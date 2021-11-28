@@ -1,21 +1,22 @@
 #!/bin/fish
-
-set -x DISPLAY tc:0
+#echo xinitrc
+#echo DISPLAY=$DISPLAY
+#set -x DISPLAY tc:0
 # echo $DISPLAY
 #set cmdline_esadc "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :1 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
 
 #set cmdline_skyscraper "nice -n-20 ionice -c1 -n3 chrt -rr 30 X :1 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
 
-set hostname (hostname)
+#set hostname (hostname)
 
-function clean
-    killall redshift
-    killall conky
-    killall clipster
-    killall st
-    killall openbox
-    wm_conf_adj
-end
+#function clean
+#    killall redshift
+#    killall conky
+#    killall clipster
+#    killall st
+#    killall openbox
+#    wm_conf_adj
+#end
 
 #function xserver_wait_prog
 #    st -t waitprog -e fish -C "function fish_title
@@ -53,7 +54,7 @@ end
 #end
 
 #xserver_start &
-pulseaudio -D &
+#pulseaudio -D &
 #redshift -c ~/.redshift_esadc.conf &
 #clipster -d &
 #screen_on_control &
@@ -61,8 +62,10 @@ pulseaudio -D &
 #while not ps -C st
 #    sleep 0.5
 #end
+setup_xrandr
 setup_x
 rind st
+echo qtile start
 qtile start
 #sc -r &
 #openbox
