@@ -205,7 +205,7 @@ def go_screen(qtile,direction):
 
 CA  = ["mod1", "control"]
 CAS = CA + ["shift"]
-terminal = guess_terminal()
+terminal = guess_terminal(preference="st")
 
 keys = [
     # Switch between windows
