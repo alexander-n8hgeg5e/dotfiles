@@ -1,53 +1,20 @@
 #!/bin/fish
-
-#set cmdline "sudo nice -n-20 ionice -c1 -n3 chrt -rr 30 sudo -u $USER X :0 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 -configdir xorg.conf.d_virthead"
-
+echo xserverrc
+echo DISPLAY=$DISPLAY
 set cmdline "sudo nice -n-20 ionice -c2 -n0 chrt -rr 30 sudo -u $USER X :0 \
+-verbose 0 \
+-logverbose 0 \
+-quiet \
 -allowNonLocalXvidtune \
 -ardelay 130 \
--arinterval 50 \
+-ac \
+-arinterval 125 \
+-listen unix \
 -listen inet \
-+iglx \
+-nolisten inet6 \
 -depth 24 \
--fbbpp 24 \
--dpms \
--xinerama \
+-fbbpp 32 \
 -novtswitch \
 vt7"
 
-#set cmdline "ssh root@skyscraper nice -n-20 ionice -c1 -n3 chrt -rr 30 X :0 -ardelay 130 -arinterval 50 -listen inet +iglx -depth 24 vt7"
-
-set firewall_0 "sudo /sbin/rc-service iptables start"
-set firewall_1 "sudo /sbin/rc-service ip6tables start"
-set firewall_check_0 "/usr/bin/sudo /sbin/rc-service iptables status"
-set firewall_check_1 "/usr/bin/sudo /sbin/rc-service ip6tables status"
-
-
-#set -x DISPLAY
-
-eval ssh ec $firewall_0  > /dev/null ^ /dev/null
-
-if test (hostname) = dusteater
-    eval ssh ec $firewall_1  > /dev/null ^ /dev/null
-    eval ssh ec $firewall_check_0; set c0 $status
-    eval ssh ec $firewall_check_1; set c1 $status
-    if test $c0 -eq 0; and test $c1 -eq 0
-	eval exec ssh ec $cmdline $argv
-    else
-	echo error: iptables somehow not working
-    end
-end
-
-set _hostname (hostname)
-
-if test $_hostname = esadc -o $_hostname = tc
-    eval $firewall_0 > /dev/null ^ /dev/null
-    eval $firewall_1 > /dev/null ^ /dev/null
-    eval $firewall_check_0 > /dev/null; set c0 $status
-    eval $firewall_check_1 > /dev/null; set c1 $status
-    if test $c0 -eq 0; and test $c1 -eq 0
-	eval exec $cmdline $argv
-    else
-	echo error: iptables somehow not working
-    end
-end
+exec ssh -o controlmaster=no -o controlpersist=no tc $cmdline
