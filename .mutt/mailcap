@@ -3,4 +3,4 @@ text/plain; w3m -I %{charset} -T text/plain;copiousoutput;
 image/jpeg; display;
 image/png; display;
 application/pdf; okular %s
-audio/*; vlc -I ncurses %s
+audio/*; play %s
