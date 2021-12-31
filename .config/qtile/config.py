@@ -328,7 +328,7 @@ fake_screens = [
         x=1366,
         y=0,
         width=960,
-        height=1080,
+        height=1070,
     ),
 ]
 
