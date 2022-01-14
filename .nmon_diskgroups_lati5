@@ -1,0 +1,6 @@
+#sda sda*
+#sdb sdb*
+#sdc sdc*
+#sdd sdd*
+nvme0n1 nvme0n1
+mmcblk0 mmcblk0
