@@ -35,6 +35,21 @@ from math import inf,sqrt,atan
 from pprint import pformat
 from socket import gethostname
 
+from logging.handlers import SysLogHandler
+from logging import WARNING,ERROR
+from logging import Formatter
+handler=SysLogHandler(address=('ec',33296))
+fmt = '[%(thread)d] %(levelname)-5s %(name)s %(message)s'
+formatter=Formatter(fmt=fmt)
+#formatter=logger.handlers[1].formatter
+handler.setFormatter(formatter)
+handler.setLevel=handler.LOG_WARNING
+for h in logger.handlers:
+    logger.removeHandler(h)
+logger.addHandler(handler)
+logger.setLevel(ERROR)
+logger.info("qtile syslogging enabled")
+
 def center_of_screen(screen):
     x,y=screen.x,screen.y
     w,h=screen.width,screen.height
@@ -178,7 +193,7 @@ def go(qtile,direction):
         else:
             go_screen(qtile,direction)
     else:
-        logger.log(99,"else")
+        #logger.log(99,"else")
         wid = direction_to_win_id_on_current_screen(qtile,direction)
         if not wid is None:
             if direction == "right":
@@ -200,15 +215,22 @@ def go_screen(qtile,direction):
         #logger.log(99,msg)
         qtile.cmd_to_screen(sid)
     else:
-        logger.log(99,"no screen in this direction")
+        pass
+        #logger.log(99,"no screen in this direction")
+
+def handle_esc(qtile,*z,**zz):
+    qtile.window.disable_fullscreen()
 
 
-CA  = ["mod1", "control"]
+
+CA  = [ "mod1", "control" ]
 CAS = CA + ["shift"]
 terminal = guess_terminal(preference="st")
 
 keys = [
     # Switch between windows
+    Key(CA, "Escape", lazy.function(handle_esc,None)),
+    Key(CA, "s"  , lazy.function(go,"left")),
     Key(CA, "Tab", lazy.layout.next(), desc="Move window focus to other window"),
 
     Key(CA , "s", lazy.function(go,"left")),
@@ -349,8 +371,9 @@ bring_front_click = False
 cursor_warp = False
 floating_layout = layout.Floating(float_rules=[
     #*layout.Floating.default_float_rules,
-    #Match(wm_class='maketag'),  # gitk
+    Match(wm_instance_class="display",wm_class='Display'),
     #Match(title='branchdialog'),  # gitk
 ])
 auto_fullscreen = True
 focus_on_window_activation = "no"
+# vim: foldlevel=0 :
