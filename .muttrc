@@ -49,6 +49,7 @@ set save_history=30000
 set autoedit=yes
 set edit_headers=yes
 set index_format="|%Z|%[%d.%m|%k:%M]|%30.30a|%M|%-60.60s%-2.2H%-5.5g|%4c"
+set pipe_decode=yes  # decode to allow urlview to read the links
 
 
 ####   ignore   stuff   ##########
