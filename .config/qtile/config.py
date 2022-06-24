@@ -360,5 +360,5 @@ floating_layout = layout.Floating(float_rules=[
     #Match(wm_class='maketag'),  # gitk
     #Match(title='branchdialog'),  # gitk
 ])
-auto_fullscreen = True
+auto_fullscreen = False
 focus_on_window_activation = "no"
