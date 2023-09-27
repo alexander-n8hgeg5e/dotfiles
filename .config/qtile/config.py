@@ -362,3 +362,8 @@ floating_layout = layout.Floating(float_rules=[
 ])
 auto_fullscreen = False
 focus_on_window_activation = "no"
+
+from libqtile.backend.wayland import InputConfig
+wl_input_rules = {
+    "type:keyboard": InputConfig(kb_repeat_rate=150,kb_repeat_delay=200),
+}
