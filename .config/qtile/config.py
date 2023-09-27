@@ -272,7 +272,7 @@ layouts = [
                     margin_left=0,
                     previous_on_rm=True,
                     panel_width =   ( 150 if gethostname() == "lati5" \
-                                      else 120
+                                      else 1366-1280
                                     ),
                     border_width=0,
                     sections=[''],
