@@ -248,48 +248,12 @@ widget_defaults = dict(
     fontsize=12,
     padding=3,
 )
-extension_defaults = widget_defaults.copy()
 
-fake_screens = [
-    Screen(
-        x=0,
-        y=156,
-        width=1366,
-        height=768,
-    #    bottom=bar.Bar(
-    #        [
-    #            widget.CurrentLayout(),
-    #            widget.GroupBox(),
-    #            widget.Prompt(),
-    #            widget.WindowName(),
-    #            widget.Chord(
-    #                chords_colors={
-    #                    'launch': ("#ff0000", "#ffffff"),
-    #                },
-    #                name_transform=lambda name: name.upper(),
-    #            ),
-    #            widget.TextBox("my config", name="default"),
-    #            widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
-    #            widget.Systray(),
-    #            widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
-    #            widget.QuickExit(),
-    #        ],
-    #        24,
-    #    ),
-    ),
-    Screen(
-        x=1366,
-        y=0,
-        width=960,
-        height=1070,
-    ),
-   # Screen(
-   #     x=1366,
-   #     y=535,
-   #     width=960,
-   #     height=530,
-   # ),
-]
+extension_defaults = widget_defaults.copy()
+# 573 430
+#screens=[Screen(x=0,y=0,height=768,width=1366),Screen(x=768,y=594,width=1056,height=594),Screen(x=768,y=0,width=1056,height=594)]
+fake_screens=[Screen(x=0,y=594,height=768,width=1366),Screen(x=1366,y=0,width=1056,height=594*2)]
+#screens=[Screen(bar=false),Screen(bar=false),Screen(bar=false)]
 
 floating_layout = layout.Floating(
     float_rules=[
