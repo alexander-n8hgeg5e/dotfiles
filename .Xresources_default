@@ -19,7 +19,7 @@ XTerm*OmitTranslation: fullscreen,scroll-lock,shift-fonts,wheel-mouse,default
 XTerm*Utf8Fonts: always
 XTerm*scaleHeight: 1
 XTerm*allowBoldFonts: false
-XTerm*allowFontOps: false
+XTerm*allowFontOps: true
 XTerm*allowWindowOps: false
 Xterm*renderFont: true 
 Xterm*Utf8: 2
