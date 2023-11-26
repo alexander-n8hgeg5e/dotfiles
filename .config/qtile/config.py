@@ -112,36 +112,24 @@ def move_win(qtile,direction):
     #    logger.log(99,"no screen in this direction")
 
 def go(qtile,direction):
-    if qtile.current_layout.name == "treetab":
-        if direction == "up":
-            qtile.current_layout.cmd_up()
-        elif direction == "down":
-            qtile.current_layout.cmd_down()
-        else:
-            go_screen(qtile,direction)
-    elif qtile.current_layout.name == "verticaltile":
-        # somehow the wid thing below does not work
-        # TODO: fix the wid thing to work and remove this elif section
-        if direction == "up":
-            qtile.current_layout.cmd_up()
-        elif direction == "down":
-            qtile.current_layout.cmd_down()
-        else:
-            go_screen(qtile,direction)
-    else:
-        logger.log(99,"else")
-        wid = direction_to_win_id_on_current_screen(qtile,direction)
-        if not wid is None:
-            if direction == "right":
-                qtile.current_layout.cmd_right()
-            elif direction == "left":
-                qtile.current_layout.cmd_left()
-            elif direction == "up":
-                qtile.current_layout.cmd_up()
+    # if there is a window on the current screen
+    # in the desired direction go there
+    #logger.log(99,"debug direction {direction}")
+    wid = get_win_id_on_current_screen_in_direction(qtile,direction)
+    #logger.log(99,f"wid={wid}")
+    if not wid is None:
+        #logger.log(99, f"stay on screen and go {direction}")
+        if qtile.current_layout.name == "treetab":
+            if direction == "up":
+                qtile.current_layout.previous()
             elif direction == "down":
-                qtile.current_layout.cmd_down()
+                qtile.current_layout.next()
         else:
-            go_screen(qtile,direction)
+            go_window(qtile,wid)
+    else:
+        # no window on current screen, so go to the next screen
+        #logger.log(99, f"calling go screen direction = {direction}")
+        go_screen(qtile,direction)
 
 def go_screen(qtile,direction):
     sid = direction_to_screen_id(qtile,direction)
