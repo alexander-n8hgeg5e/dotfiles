@@ -40,6 +40,7 @@ logger.log(logging.INFO,"logger active")
 from math import inf,sqrt,atan
 from pprint import pformat
 from socket import gethostname
+from pylib.surface import get_point_index_in_direction_from_point
 
 def center_of_screen(screen):
     x,y=screen.x,screen.y
@@ -51,7 +52,7 @@ def center_of_window(w):
     w,h=w['width'],w['height']
     return x+w/2,y+h/2
 
-def direction_to_screen_id(qtile,direction):
+def get_screen_id_in_direction(qtile,direction):
     screens = qtile.screens.copy()
     positions = []
     for i in range(len(screens)):
@@ -63,35 +64,10 @@ def direction_to_screen_id(qtile,direction):
     lowest_distance = inf
     lowest_distance_index = None
     own_pos=positions[current_screen_list_index]
-    for i in range(len(positions)):
-        p=positions[i]
-        if direction in ('right','down'):
-            if p[0] > own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
-                d = distance_of_points(own_pos,p)
-                if d < lowest_distance:
-                    lowest_distance=d
-                    lowest_distance_index = i
-            else:
-                p = None
-        elif direction in ('left','up'):
-            if p[0] < own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
-                d = distance_of_points(own_pos,p)
-                if d < lowest_distance:
-                    lowest_distance=d
-                    lowest_distance_index = i
-            else:
-                p = None
-    if not lowest_distance_index is None:
-        return screens[lowest_distance_index].index
+    return get_point_index_in_direction_from_point(own_pos,direction,positions)
 
-def val_in_interval(v,interval):
-    return interval[0] < v < interval[1]
-
-def pos_in_2D_interval(pos,interval):
-    return val_in_interval(pos[0],interval[0]) and val_in_interval(pos[1],interval[1])
-
-def direction_to_win_id_on_current_screen(qtile,direction):
-    windows = qtile.cmd_windows()
+def get_win_id_on_current_screen_in_direction(qtile,direction):
+    windows = qtile.windows()
     positions = []
     for i in range(len(windows)):
         window=windows[i]
@@ -102,45 +78,13 @@ def direction_to_win_id_on_current_screen(qtile,direction):
                 current_window_list_index = i
         except AttributeError:
             return None
-    lowest_distance = inf
-    lowest_distance_index = None
     own_pos=positions[current_window_list_index]
     interval_x = qtile.current_screen.x,qtile.current_screen.x+qtile.current_screen.width
     interval_y = qtile.current_screen.y,qtile.current_screen.y+qtile.current_screen.height
-    for i in range(len(positions)):
-        p=positions[i]
-        if pos_in_2D_interval(p,(interval_x,interval_y)):
-            if direction in ('right','down'):
-                if p[0] > own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
-                    d = distance_of_points(own_pos,p)
-                    if d < lowest_distance:
-                        lowest_distance=d
-                        lowest_distance_index = i
-                else:
-                    p = None
-            elif direction in ('left','up'):
-                if p[0] < own_pos[0] and point_is_in_direction_from_point(own_pos,direction,p):
-                    d = distance_of_points(own_pos,p)
-                    if d < lowest_distance:
-                        lowest_distance=d
-                        lowest_distance_index = i
-                else:
-                    p = None
-        else:
-            p = None
-    if not lowest_distance_index is None:
-        return windows[lowest_distance_index]['id']
-
-def point_is_in_direction_from_point(p0,direction,p1):
-    p = (p1[0]-p0[0], p1[1]-p0[1])
-    if direction in ('left', 'right'):
-        return (p[1]/p[0])**2 <= 1
-    elif direction in ('up', 'down'):
-        return (p[1]/p[0])**2 >= 1
-
-def distance_of_points(p0,p1):
-    p = (p1[0]-p0[0], p1[1]-p0[1])
-    return sqrt(p[0]**2+p[1]**2)
+    search_area={'interval_x':interval_x,'interval_y':interval_y}
+    i=get_point_index_in_direction_from_point(own_pos,direction,positions,search_area=search_area)
+    if not i is None:
+        return windows[i]['id']
 
 def move_win(qtile,direction):
     if len(qtile.screens) > 1:
