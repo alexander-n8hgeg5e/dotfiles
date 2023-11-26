@@ -143,6 +143,16 @@ def go_screen(qtile,direction):
         pass
         #logger.log(99,"no screen in this direction")
 
+def go_window(qtile,wid):
+    csid = qtile.current_screen.index
+    #logger.log(99,f"wid={wid}")
+    window=qtile.windows_map[wid]
+    group=window.info()['group']
+    wsid = qtile.groups_map[group].screen.index
+    if csid != wsid:
+        qtile.to_screen(wsid)
+    qtile.groups_map[group].focus(window)
+    qtile.windows_map[wid].bring_to_front()
 
 CA  = ["mod1", "control"]
 CAS = CA + ["shift"]
