@@ -214,8 +214,8 @@ layouts = [
     #layout.Matrix(),
     #layout.MonadTall(),
     #layout.MonadWide(),
-    #layout.RatioTile(),
-    # layout.Tile(),
+    layout.RatioTile(),
+    #layout.Tile(),
     layout.TreeTab  (
                     font="Anonymous Pro",
                     fontsize=( 12 if gethostname() == "lati5" else 14 ),
