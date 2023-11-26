@@ -31,6 +31,12 @@ from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from libqtile.log_utils import logger
+from logging.handlers import SysLogHandler
+import logging
+for handler in logger.handlers:
+     logger.removeHandler(handler)
+logger.handler=SysLogHandler()
+logger.log(logging.INFO,"logger active")
 from math import inf,sqrt,atan
 from pprint import pformat
 from socket import gethostname
