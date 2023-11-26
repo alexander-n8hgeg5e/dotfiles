@@ -290,4 +290,5 @@ focus_on_window_activation = "no"
 from libqtile.backend.wayland import InputConfig
 wl_input_rules = {
     "type:keyboard": InputConfig(kb_repeat_rate=150,kb_repeat_delay=200),
+    "type:pointer":  InputConfig(accel_profile="flat"), 
 }
