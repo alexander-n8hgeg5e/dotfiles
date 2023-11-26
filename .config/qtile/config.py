@@ -188,7 +188,7 @@ keys = [
     Key(CAS, "r", lazy.restart(), desc="Restart Qtile"),
 ]
 
-groups = [Group(i) for i in "123456789"]
+groups = [Group(i) for i in "abcd"]
 
 for i in groups:
     keys.extend([
