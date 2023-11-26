@@ -132,14 +132,16 @@ def go(qtile,direction):
         go_screen(qtile,direction)
 
 def go_screen(qtile,direction):
-    sid = direction_to_screen_id(qtile,direction)
+    sid = get_screen_id_in_direction(qtile,direction)
     if not sid is None:
-        group = qtile.screens[sid].group.name
+        sid=int(sid)
+        #group = qtile.screens[sid].group.name
         #msg=pformat([qtile,dir(qtile),type(qtile),qtile.warp_to_screen.__doc__])
-        #logger.log(99,msg)
-        qtile.cmd_to_screen(sid)
+        #llogger.log(99,msg)
+        qtile.to_screen(sid)
     else:
-        logger.log(99,"no screen in this direction")
+        pass
+        #logger.log(99,"no screen in this direction")
 
 
 CA  = ["mod1", "control"]
