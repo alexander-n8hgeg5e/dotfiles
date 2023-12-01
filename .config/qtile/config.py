@@ -111,9 +111,7 @@ def move_win(qtile,direction):
 def go(qtile,direction):
     # if there is a window on the current screen
     # in the desired direction go there
-    #logger.log(99,"debug direction {direction}")
     wid = get_win_id_on_current_screen_in_direction(qtile,direction)
-    #logger.log(99,f"wid={wid}")
     if not wid is None:
         #logger.log(99, f"stay on screen and go {direction}")
         if qtile.current_layout.name == "treetab":
