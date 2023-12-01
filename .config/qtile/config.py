@@ -209,7 +209,7 @@ layouts = [
     #layout.Matrix(),
     #layout.MonadTall(),
     #layout.MonadWide(),
-    layout.RatioTile(),
+    layout.RatioTile(ratio=1),
     #layout.Tile(),
     layout.TreeTab  (
                     font="Anonymous Pro",
