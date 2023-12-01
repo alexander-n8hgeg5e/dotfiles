@@ -87,26 +87,23 @@ def get_win_id_on_current_screen_in_direction(qtile,direction):
         return windows[i]['id']
 
 def move_win(qtile,direction):
-    if qtile.current_layout.name in ("verticaltile","monadtall","tile"):
-        if direction == "up":
-            qtile.current_layout.cmd_shuffle_up()
-            return
-        elif direction == "down":
-            qtile.current_layout.cmd_shuffle_down()
-            return
-        if direction == "left":
-            qtile.current_layout.cmd_shuffle_left()
-            return
-        elif direction == "right":
-            qtile.current_layout.cmd_shuffle_right()
-            return
-    if len(qtile.screens) > 1:
-        sid = get_screen_id_in_direction(qtile,direction)
-        logger.log(99,f"found sid={sid}")
-        if not sid is None:
-            group = qtile.screens[sid].group.name
-            qtile.current_window.togroup(group)
-            return
+    # if there is another window on the current screen
+    # move the current window to this place and swap it
+    # with the other window
+    wid = get_win_id_on_current_screen_in_direction(qtile,direction)
+    if not wid is None:
+        # swap
+        qtile.current_group.layout.swap(qtile.current_window,qtile.windows_map[wid]) 
+    else:
+        # move the current window to another screen
+        # in case there is one in the requested direction
+        if len(qtile.screens) > 1:
+            sid = get_screen_id_in_direction(qtile,direction)
+            logger.log(99,f"found sid={sid}")
+            if not sid is None:
+                group = qtile.screens[sid].group.name
+                qtile.current_window.togroup(group)
+                return
     #getattr(qtile.current_layout ,'cmd_move_'+direction)()
     #else:
     #    logger.log(99,"no screen in this direction")
