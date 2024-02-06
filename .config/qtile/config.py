@@ -177,6 +177,8 @@ keys = [
 
     # Toggle between different layouts as defined below
     #Key(CA, "space", lazy.function(toggle_tree_tab), desc="toggle to tree tab layout and back"),
+    Key(CA, "up",   lazy.to_layout_index(0),desc="layout 0"),
+    Key(CA, "down", lazy.to_layout_index(1),desc="layout 1"),
     Key(CA, "z", lazy.window.kill(), desc="Kill focused window"),
     Key(CA, "w", lazy.window.toggle_floating()),
 
