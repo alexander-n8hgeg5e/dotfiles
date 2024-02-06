@@ -249,7 +249,7 @@ widget_defaults = dict(
 extension_defaults = widget_defaults.copy()
 # 573 430
 #screens=[Screen(x=0,y=0,height=768,width=1366),Screen(x=768,y=594,width=1056,height=594),Screen(x=768,y=0,width=1056,height=594)]
-fake_screens=[Screen(x=0,y=594,height=768,width=1366),Screen(x=1366,y=0,width=1056,height=594*2)]
+fake_screens=[Screen(x=0,y=581-245,height=768,width=1366),Screen(x=1366,y=0,width=1033,height=581*2)]
 #screens=[Screen(bar=false),Screen(bar=false),Screen(bar=false)]
 
 floating_layout = layout.Floating(
