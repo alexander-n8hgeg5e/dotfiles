@@ -149,6 +149,12 @@ def go_window(qtile,wid):
     qtile.groups_map[group].focus(window)
     qtile.windows_map[wid].bring_to_front()
 
+#def toggle_tree_tab(qtile):
+#    global layout_previous_to_tree_tab_toggle
+#    if qtile.current_layout.name == "treetab":
+#    else:
+#        layout_previous_to_tree_tab_toggle = qtile.current_layout.name
+
 CA  = ["mod1", "control"]
 CAS = CA + ["shift"]
 terminal = guess_terminal(preference="st")
@@ -176,7 +182,7 @@ keys = [
     Key(CA, "Return", lazy.spawn(terminal), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
-    Key(CA, "space", lazy.next_layout(), desc="Toggle between layouts"),
+    #Key(CA, "space", lazy.function(toggle_tree_tab), desc="toggle to tree tab layout and back"),
     Key(CA, "z", lazy.window.kill(), desc="Kill focused window"),
     Key(CA, "w", lazy.window.toggle_floating()),
 
