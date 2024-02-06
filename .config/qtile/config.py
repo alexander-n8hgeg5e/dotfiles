@@ -173,12 +173,6 @@ keys = [
     Key(CA, "k", lazy.function(move_win,"down")),
     Key(CA, "i", lazy.function(move_win,"up")),
 
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key(CAS, "Return", lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack"),
     Key(CA, "Return", lazy.spawn(terminal), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
